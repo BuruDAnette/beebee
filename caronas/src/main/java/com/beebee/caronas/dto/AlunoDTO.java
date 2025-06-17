@@ -14,5 +14,4 @@ public class AlunoDTO {
     private Double mediaCaroneiro;
     private Double mediaCaronista;
     private String login;
-    private String senha;
 }
