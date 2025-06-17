@@ -15,17 +15,25 @@ import com.beebee.caronas.repositories.VeiculoRepository;
 @Service
 
 public class VeiculoService {
-    
     @Autowired
     private VeiculoRepository veiculoRepository;
-
     @Autowired
     private AlunoRepository alunoRepository;
 
-    private Veiculo toEntity(VeiculoDTO dto) {
+
+    private VeiculoDTO converterParaDTO(Veiculo veiculo) {
+        return VeiculoDTO.builder()
+                .id(veiculo.getId())
+                .placa(veiculo.getPlaca())
+                .modelo(veiculo.getModelo())
+                .cor(veiculo.getCor())
+                .motoristaId(veiculo.getMotorista().getId())
+                .build();
+    }
+
+    private Veiculo converterParaEntidade(VeiculoDTO dto) {
         Aluno motorista = alunoRepository.findById(dto.getMotoristaId())
             .orElseThrow(() -> new RuntimeException("Motorista não encontrado"));
-
         return Veiculo.builder()
             .id(dto.getId())
             .placa(dto.getPlaca())
@@ -35,36 +43,23 @@ public class VeiculoService {
             .build();
     }
 
-    private VeiculoDTO toDTO(Veiculo veiculo) {
-        VeiculoDTO dto = new VeiculoDTO();
-        dto.setId(veiculo.getId());
-        dto.setPlaca(veiculo.getPlaca());
-        dto.setModelo(veiculo.getModelo());
-        dto.setCor(veiculo.getCor());
-        dto.setMotoristaId(veiculo.getMotorista().getId());
-        return dto;
-    }
-
     public VeiculoDTO salvar(VeiculoDTO dto) {
-        Veiculo veiculo = toEntity(dto);
+        Veiculo veiculo = converterParaEntidade(dto);
         veiculo = veiculoRepository.save(veiculo);
-        return toDTO(veiculo);
+        return converterParaDTO(veiculo);
     }
-
     public List<VeiculoDTO> listarTodos() {
         return veiculoRepository.findAll()
                 .stream()
-                .map(this::toDTO)
+                .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }
-
     public VeiculoDTO buscarPorId(Long id) {
         Veiculo veiculo = veiculoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Veículo não encontrado"));
-        return toDTO(veiculo);
+                .orElseThrow(() -> new RuntimeException("Veículo não encontrado com o ID: " + id));
+        return converterParaDTO(veiculo);
     }
-
-    public void deletar(Long id) {
+    public void excluir(Long id) {
         veiculoRepository.deleteById(id);
     }
 }

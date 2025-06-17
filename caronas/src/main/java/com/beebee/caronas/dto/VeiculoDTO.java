@@ -1,15 +1,12 @@
 package com.beebee.caronas.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
+@Builder
 public class VeiculoDTO {
-
     private Long id;
     private String placa;
     private String modelo;

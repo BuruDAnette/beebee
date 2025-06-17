@@ -1,17 +1,20 @@
 package com.beebee.caronas.services;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.beebee.caronas.dto.AlunoDTO;
 import com.beebee.caronas.entities.Aluno;
 import com.beebee.caronas.repositories.AlunoRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class AlunoService {
+    @Autowired
     private final AlunoRepository alunoRepository;
 
     private AlunoDTO converterParaDTO(Aluno aluno) {
@@ -44,7 +47,8 @@ public class AlunoService {
         return converterParaDTO(alunoSalvo);
     }
     public List<AlunoDTO> listarTodos() {
-        return alunoRepository.findAll().stream()
+        return alunoRepository.findAll()
+                .stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }

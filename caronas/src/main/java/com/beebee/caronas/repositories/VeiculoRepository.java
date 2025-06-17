@@ -7,5 +7,4 @@ import com.beebee.caronas.entities.Veiculo;
 
 @Repository
 public interface VeiculoRepository extends JpaRepository<Veiculo, Long> {
-
 }
