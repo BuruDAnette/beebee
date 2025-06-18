@@ -1,0 +1,1 @@
+![logo BeeBee](docs/images/logo-text-banner-2.png)
