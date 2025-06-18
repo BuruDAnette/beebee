@@ -1,1 +1,1 @@
-![logo BeeBee](docs/images/logo-text-banner-2.png)
+![logo BeeBee](caronas/docs/images/logo-text-banner-2.png)
