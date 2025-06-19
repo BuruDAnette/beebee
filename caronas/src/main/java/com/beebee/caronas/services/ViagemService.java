@@ -12,19 +12,30 @@ import com.beebee.caronas.entities.Viagem;
 import com.beebee.caronas.repositories.AlunoRepository;
 import com.beebee.caronas.repositories.ViagemRepository;
 
+@Service
 public class ViagemService {
-
     @Autowired
     private ViagemRepository viagemRepository;
-
     @Autowired
     private AlunoRepository alunoRepository;
 
-    // Conversão de DTO para Entity
-    private Viagem toEntity(ViagemDTO dto) {
-        Aluno motorista = alunoRepository.findById(dto.getMotoristaId())
-                .orElseThrow(() -> new RuntimeException("Motorista não encontrado"));
+    private ViagemDTO converterParaDTO(Viagem viagem) {
+        return ViagemDTO.builder()
+                .id(viagem.getId())
+                .descricao(viagem.getDescricao())
+                .dataInicio(viagem.getDataInicio())
+                .dataFim(viagem.getDataFim())
+                .origem(viagem.getOrigem())
+                .destino(viagem.getDestino())
+                .situacao(viagem.getSituacao())
+                .motoristaId(viagem.getMotorista().getId())
+                .build();
+    }
 
+    private Viagem converterParaEntidade(ViagemDTO dto) {
+        Aluno motorista = alunoRepository.findById(dto.getMotoristaId())
+                .orElseThrow(() -> new RuntimeException("Motorista não encontrado com o ID: " + dto.getMotoristaId()));
+        
         return Viagem.builder()
                 .id(dto.getId())
                 .descricao(dto.getDescricao())
@@ -37,46 +48,26 @@ public class ViagemService {
                 .build();
     }
 
-    // Conversão de Entity para DTO
-    private ViagemDTO toDTO(Viagem viagem) {
-        ViagemDTO dto = new ViagemDTO();
-        dto.setId(viagem.getId());
-        dto.setDescricao(viagem.getDescricao());
-        dto.setDataInicio(viagem.getDataInicio());
-        dto.setDataFim(viagem.getDataFim());
-        dto.setOrigem(viagem.getOrigem());
-        dto.setDestino(viagem.getDestino());
-        dto.setSituacao(viagem.getSituacao());
-
-        if (viagem.getMotorista() != null) {
-            dto.setMotoristaId(viagem.getMotorista().getId());
-        } else {
-            dto.setMotoristaId(null);
-        }
-
-        return dto;
-    }
-
     public ViagemDTO salvar(ViagemDTO dto) {
-        Viagem viagem = toEntity(dto);
+        Viagem viagem = converterParaEntidade(dto);
         viagem = viagemRepository.save(viagem);
-        return toDTO(viagem);
+        return converterParaDTO(viagem);
     }
 
     public List<ViagemDTO> listarTodos() {
         return viagemRepository.findAll()
                 .stream()
-                .map(this::toDTO)
+                .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }
 
     public ViagemDTO buscarPorId(Long id) {
         Viagem viagem = viagemRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Viagem não encontrada"));
-        return toDTO(viagem);
+                .orElseThrow(() -> new RuntimeException("Viagem não encontrada com o ID: " + id));
+        return converterParaDTO(viagem);
     }
 
-    public void deletar(Long id) {
+    public void excluir(Long id) {
         viagemRepository.deleteById(id);
     }
 }
