@@ -1,21 +1,20 @@
 package com.beebee.caronas.controllers;
 
+import com.beebee.caronas.dto.ViagemDTO;
+import com.beebee.caronas.services.ViagemService;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
-import com.beebee.caronas.dto.ViagemDTO;
-import com.beebee.caronas.services.ViagemService;
-
+@RestController
+@RequestMapping("/viagens")
+@RequiredArgsConstructor
 public class ViagemController {
     @Autowired
     private ViagemService viagemService;
@@ -52,7 +51,7 @@ public class ViagemController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletar(@PathVariable Long id) {
-        viagemService.deletar(id);
+        viagemService.excluir(id);
         Map<String, String> response = new HashMap<>();
         response.put("mensagem", "Viagem deletada com sucesso");
         return ResponseEntity.ok(response);
