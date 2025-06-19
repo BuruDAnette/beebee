@@ -2,9 +2,12 @@ package com.beebee.caronas.dto;
 
 import java.time.LocalDate;
 
-import lombok.Data;
+import lombok.*;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ViagemDTO {
     private Long id;
     private String descricao;
