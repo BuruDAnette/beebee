@@ -60,6 +60,9 @@ public class VeiculoService {
         return converterParaDTO(veiculo);
     }
     public void excluir(Long id) {
+        if (!veiculoRepository.existsById(id)) {
+            throw new RuntimeException("Veículo não encontrado com o ID: " + id);
+        }
         veiculoRepository.deleteById(id);
     }
 }

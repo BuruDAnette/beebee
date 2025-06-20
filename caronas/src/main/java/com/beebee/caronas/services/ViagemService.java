@@ -68,6 +68,9 @@ public class ViagemService {
     }
 
     public void excluir(Long id) {
+        if (!viagemRepository.existsById(id)) {
+            throw new RuntimeException("Viagem não encontrada com o ID: " + id);
+        }
         viagemRepository.deleteById(id);
     }
 }
