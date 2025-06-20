@@ -1,6 +1,7 @@
 package com.beebee.caronas.controllers;
 
 import com.beebee.caronas.dto.ViagemAlunoDTO;
+import com.beebee.caronas.entities.ViagemAluno.Situacao;
 import com.beebee.caronas.services.ViagemAlunoService;
 import lombok.RequiredArgsConstructor;
 
@@ -39,5 +40,12 @@ public class ViagemAlunoController {
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         viagemAlunoService.excluir(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/confirmar")
+    public ResponseEntity<ViagemAlunoDTO> confirmarViagem(@PathVariable Long id) {
+        return ResponseEntity.ok(
+            viagemAlunoService.atualizarStatus(id, Situacao.CONFIRMADA)
+        );
     }
 }
