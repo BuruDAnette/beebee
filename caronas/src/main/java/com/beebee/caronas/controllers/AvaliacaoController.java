@@ -2,7 +2,6 @@ package com.beebee.caronas.controllers;
 
 import com.beebee.caronas.dto.AvaliacaoDTO;
 import com.beebee.caronas.services.AvaliacaoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,8 +12,7 @@ import java.util.List;
 @RequestMapping("/avaliacoes")
 @RequiredArgsConstructor
 public class AvaliacaoController {
-    @Autowired
-    private AvaliacaoService avaliacaoService;
+    private final AvaliacaoService avaliacaoService;
 
     @GetMapping
     public ResponseEntity<List<AvaliacaoDTO>> listarTodos() {

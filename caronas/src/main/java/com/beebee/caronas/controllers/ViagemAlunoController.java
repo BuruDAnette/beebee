@@ -4,8 +4,6 @@ import com.beebee.caronas.dto.ViagemAlunoDTO;
 import com.beebee.caronas.entities.ViagemAluno.Situacao;
 import com.beebee.caronas.services.ViagemAlunoService;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +13,6 @@ import java.util.List;
 @RequestMapping("/viagens-alunos")
 @RequiredArgsConstructor
 public class ViagemAlunoController {
-    @Autowired
     private final ViagemAlunoService viagemAlunoService;
 
     @GetMapping("/{id}")

@@ -2,7 +2,7 @@ package com.beebee.caronas.controllers;
 
 import com.beebee.caronas.dto.VeiculoDTO;
 import com.beebee.caronas.services.VeiculoService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,9 +10,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/veiculos")
+@RequiredArgsConstructor
 public class VeiculoController {
-    @Autowired
-    private VeiculoService veiculoService;
+    private final VeiculoService veiculoService;
 
     @GetMapping
     public ResponseEntity<List<VeiculoDTO>> listarTodos() {
