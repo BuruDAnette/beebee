@@ -63,6 +63,20 @@ public class VeiculoService {
             .orElseThrow(() -> new ResourceNotFoundException("Veículo", id));
         return converterParaDTO(veiculo);
     }
+    public VeiculoDTO atualizar(Long id, VeiculoDTO dto) {
+        Veiculo veiculo = veiculoRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Veículo", id));
+        
+        if (dto.getModelo() != null) {
+            veiculo.setModelo(dto.getModelo());
+        }
+        if (dto.getCor() != null) {
+            veiculo.setCor(dto.getCor());
+        }
+        
+        Veiculo veiculoAtualizado = veiculoRepository.save(veiculo);
+        return converterParaDTO(veiculoAtualizado);
+    }
     public void excluir(Long id) {
         if (!veiculoRepository.existsById(id)) {
             throw new ResourceNotFoundException("Veículo", id);

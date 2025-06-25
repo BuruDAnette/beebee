@@ -69,6 +69,36 @@ public class AvaliacaoService {
             .orElseThrow(() -> new ResourceNotFoundException("Avaliação", id));
         return toDTO(avaliacao);
     }
+    public AvaliacaoDTO atualizar(Long id, AvaliacaoDTO dto) {
+        dto.setId(id);
+        Avaliacao avaliacao = avaliacaoRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Avaliação", id));
+        
+        if (dto.getDescricao() != null) {
+            avaliacao.setDescricao(dto.getDescricao());
+        }
+        if (dto.getComentarioCaroneiro() != null) {
+            avaliacao.setComentarioCaroneiro(dto.getComentarioCaroneiro());
+        }
+        if (dto.getNotaCaroneiro() != null) {
+            if (dto.getNotaCaroneiro() < 1 || dto.getNotaCaroneiro() > 5) {
+                throw new BusinessRuleException("A nota deve ser entre 1 e 5");
+            }
+            avaliacao.setNotaCaroneiro(dto.getNotaCaroneiro());
+        }
+        if (dto.getComentarioCaronista() != null) {
+            avaliacao.setComentarioCaronista(dto.getComentarioCaronista());
+        }
+        if (dto.getNotaCaronista() != null) {
+            if (dto.getNotaCaronista() < 1 || dto.getNotaCaronista() > 5) {
+                throw new BusinessRuleException("A nota deve ser entre 1 e 5");
+            }
+            avaliacao.setNotaCaronista(dto.getNotaCaronista());
+        }
+        
+        Avaliacao avaliacaoAtualizada = avaliacaoRepository.save(avaliacao);
+        return toDTO(avaliacaoAtualizada);
+    }
     public void deletar(Long id) {
         if (!avaliacaoRepository.existsById(id)) {
             throw new ResourceNotFoundException("Avaliação", id);

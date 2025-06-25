@@ -44,6 +44,15 @@ public class HorarioAcademicoController {
         return ResponseEntity.ok(horario);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<HorarioAcademicoDTO> atualizar(
+            @PathVariable Long id, 
+            @RequestBody HorarioAcademicoDTO dto) {
+        dto.setId(id); 
+        HorarioAcademicoDTO horarioAtualizado = horarioService.atualizar(id, dto);
+        return ResponseEntity.ok(horarioAtualizado);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         horarioService.excluir(id);

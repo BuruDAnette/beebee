@@ -2,6 +2,7 @@ package com.beebee.caronas.services;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -70,6 +71,22 @@ public class ViagemService {
         Viagem viagem = viagemRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Viagem", id));
         return converterParaDTO(viagem);
+    }
+    public ViagemDTO atualizar(Long id, ViagemDTO dto) {
+        Objects.requireNonNull(id, "ID da viagem não pode ser nulo");
+        
+        Viagem viagem = viagemRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Viagem", id));
+
+        if (dto.getDescricao() != null) {
+            viagem.setDescricao(dto.getDescricao());
+        }
+        if (dto.getSituacao() != null) {
+            viagem.setSituacao(dto.getSituacao());
+        }
+
+        Viagem viagemAtualizada = viagemRepository.save(viagem);
+        return converterParaDTO(viagemAtualizada);
     }
     public void excluir(Long id) {
         if (!viagemRepository.existsById(id)) {
