@@ -76,21 +76,28 @@ public class ViagemAlunoService {
             .orElseThrow(() -> new ResourceNotFoundException("ViagemAluno", id));
         return converterParaDTO(viagemAluno);
     }
+
+    public ViagemAlunoDTO atualizar(Long id, ViagemAlunoDTO dto) {
+        ViagemAluno viagemAluno = viagemAlunoRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("ViagemAluno", id));
+
+        if (dto.getObservacao() != null) {
+            viagemAluno.setObservacao(dto.getObservacao());
+        }
+        if (dto.getSituacao() != null) {
+            viagemAluno.setSituacao(dto.getSituacao());
+            if (dto.getSituacao() == Situacao.CONFIRMADA) {
+                viagemAluno.setDataConfirmacao(LocalDateTime.now());
+            }
+        }
+
+        ViagemAluno viagemAlunoAtualizada = viagemAlunoRepository.save(viagemAluno);
+        return converterParaDTO(viagemAlunoAtualizada);
+    }
     public void excluir(Long id) {
         if (!viagemAlunoRepository.existsById(id)) {
             throw new ResourceNotFoundException("ViagemAluno", id);
         }
         viagemAlunoRepository.deleteById(id);
-    }
-    public ViagemAlunoDTO atualizarStatus(Long id, Situacao novoSituacao) {
-        ViagemAluno viagemAluno = viagemAlunoRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("ViagemAluno", id));
-        
-        if (novoSituacao == Situacao.CONFIRMADA) {
-            viagemAluno.setDataConfirmacao(LocalDateTime.now());
-        }
-        
-        viagemAluno.setSituacao(novoSituacao);
-        return converterParaDTO(viagemAlunoRepository.save(viagemAluno));
     }
 }

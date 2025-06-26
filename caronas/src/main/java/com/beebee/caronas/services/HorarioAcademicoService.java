@@ -78,6 +78,24 @@ public class HorarioAcademicoService {
             .map(this::converterParaDTO)
             .orElseThrow(() -> new ResourceNotFoundException("Horário acadêmico", id));
     }
+    public HorarioAcademicoDTO atualizar(Long id, HorarioAcademicoDTO dto) {
+        HorarioAcademico horario = horarioRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Horário acadêmico", id));
+
+        horario.setDescricao(dto.getDescricao());
+        horario.setDia(dto.getDia());
+        horario.setHorario(dto.getHorario());
+        horario.setSituacao(dto.getSituacao());
+
+        if (!horario.getAluno().getId().equals(dto.getIdAluno())) {
+            Aluno novoAluno = alunoRepository.findById(dto.getIdAluno())
+                .orElseThrow(() -> new ResourceNotFoundException("Aluno", dto.getIdAluno()));
+            horario.setAluno(novoAluno);
+        }
+
+        HorarioAcademico horarioAtualizado = horarioRepository.save(horario);
+        return converterParaDTO(horarioAtualizado);
+    }
     public void excluir(Long id) {
         if (!horarioRepository.existsById(id)) {
             throw new ResourceNotFoundException("Horário acadêmico", id);

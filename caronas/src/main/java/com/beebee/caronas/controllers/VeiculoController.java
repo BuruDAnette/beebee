@@ -33,7 +33,7 @@ public class VeiculoController {
     @PutMapping("/{id}")
     public ResponseEntity<VeiculoDTO> atualizar(@PathVariable Long id, @RequestBody VeiculoDTO dto) {
         dto.setId(id);
-        VeiculoDTO atualizado = veiculoService.salvar(dto);
+        VeiculoDTO atualizado = veiculoService.atualizar(id, dto);
         return ResponseEntity.ok(atualizado);
     }
 
