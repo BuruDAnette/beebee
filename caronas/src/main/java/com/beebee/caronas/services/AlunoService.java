@@ -63,6 +63,23 @@ public class AlunoService {
             .map(this::converterParaDTO)
             .orElseThrow(() -> new ResourceNotFoundException("Aluno", id));
     }
+    public AlunoDTO atualizar(Long id, AlunoDTO dto) {
+        Aluno aluno = alunoRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Aluno", id));
+
+        if (dto.getNome() != null) {
+            aluno.setNome(dto.getNome());
+        }
+        if (dto.getEmail() != null) {
+            if (alunoRepository.existsByEmailAndIdNot(dto.getEmail(), id)) {
+                throw new BusinessRuleException("Email já está em uso por outro aluno");
+            }
+            aluno.setEmail(dto.getEmail());
+        }
+
+        Aluno alunoAtualizado = alunoRepository.save(aluno);
+        return converterParaDTO(alunoAtualizado);
+    }
     public void excluir(Long id) {
         if (!alunoRepository.existsById(id)) {
             throw new ResourceNotFoundException("Aluno", id);

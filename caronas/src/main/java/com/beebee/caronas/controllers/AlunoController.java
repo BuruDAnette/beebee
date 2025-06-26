@@ -32,6 +32,13 @@ public class AlunoController {
         return ResponseEntity.ok(aluno);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<AlunoDTO> atualizar(@PathVariable Long id, @RequestBody AlunoDTO alunoDTO) {
+        alunoDTO.setId(id);
+        AlunoDTO alunoAtualizado = alunoService.atualizar(id, alunoDTO);
+        return ResponseEntity.ok(alunoAtualizado);
+    }
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         alunoService.excluir(id);
