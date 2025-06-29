@@ -15,33 +15,33 @@ public class AlunoController {
     private final AlunoService alunoService;
 
     @PostMapping
-    public ResponseEntity<AlunoDTO> salvar(@RequestBody AlunoDTO alunoDTO) {
-        AlunoDTO alunoSalvo = alunoService.salvar(alunoDTO);
-        return ResponseEntity.ok(alunoSalvo);
+    public ResponseEntity<AlunoDTO> save(@RequestBody AlunoDTO alunoDTO) {
+        AlunoDTO savedStudent = alunoService.save(alunoDTO);
+        return ResponseEntity.status(201).body(savedStudent);
     }
 
     @GetMapping
-    public ResponseEntity<List<AlunoDTO>> listarTodos() {
-        List<AlunoDTO> alunos = alunoService.listarTodos();
-        return ResponseEntity.ok(alunos);
+    public ResponseEntity<List<AlunoDTO>> getAll() {
+        List<AlunoDTO> students = alunoService.getAll();
+        return ResponseEntity.ok(students);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AlunoDTO> buscarPorId(@PathVariable Long id) {
-        AlunoDTO aluno = alunoService.buscarPorId(id);
-        return ResponseEntity.ok(aluno);
+    public ResponseEntity<AlunoDTO> getById(@PathVariable Long id) {
+        AlunoDTO student = alunoService.getById(id);
+        return ResponseEntity.ok(student);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AlunoDTO> atualizar(@PathVariable Long id, @RequestBody AlunoDTO alunoDTO) {
+    public ResponseEntity<AlunoDTO> update(@PathVariable Long id, @RequestBody AlunoDTO alunoDTO) {
         alunoDTO.setId(id);
-        AlunoDTO alunoAtualizado = alunoService.atualizar(id, alunoDTO);
-        return ResponseEntity.ok(alunoAtualizado);
+        AlunoDTO updatedStudent = alunoService.update(id, alunoDTO);
+        return ResponseEntity.ok(updatedStudent);
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable Long id) {
-        alunoService.excluir(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        alunoService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

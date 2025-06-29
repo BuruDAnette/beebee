@@ -15,35 +15,33 @@ public class ViagemAlunoController {
     private final ViagemAlunoService viagemAlunoService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ViagemAlunoDTO> buscarPorId(@PathVariable Long id) {
-        ViagemAlunoDTO viagemAluno = viagemAlunoService.buscarPorId(id);
-        return ResponseEntity.ok(viagemAluno);
+    public ResponseEntity<ViagemAlunoDTO> getById(@PathVariable Long id) {
+        ViagemAlunoDTO studentTrip = viagemAlunoService.getById(id);
+        return ResponseEntity.ok(studentTrip);
     }
 
     @PostMapping
-    public ResponseEntity<ViagemAlunoDTO> salvar(@RequestBody ViagemAlunoDTO dto) {
-        ViagemAlunoDTO viagemSalva = viagemAlunoService.salvar(dto);
-        return ResponseEntity.ok(viagemSalva);
+    public ResponseEntity<ViagemAlunoDTO> save(@RequestBody ViagemAlunoDTO dto) {
+        ViagemAlunoDTO savedStudentTrip = viagemAlunoService.save(dto);
+        return ResponseEntity.status(201).body(savedStudentTrip);
     }
 
     @GetMapping
-    public ResponseEntity<List<ViagemAlunoDTO>> listarTodos() {
-        List<ViagemAlunoDTO> viagensAlunos = viagemAlunoService.listarTodos();
-        return ResponseEntity.ok(viagensAlunos);
+    public ResponseEntity<List<ViagemAlunoDTO>> getAll() {
+        List<ViagemAlunoDTO> studentTrips = viagemAlunoService.getAll();
+        return ResponseEntity.ok(studentTrips);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ViagemAlunoDTO> atualizar(
-            @PathVariable Long id, 
-            @RequestBody ViagemAlunoDTO dto) {
+    public ResponseEntity<ViagemAlunoDTO> update(@PathVariable Long id, @RequestBody ViagemAlunoDTO dto) {
         dto.setId(id);
-        ViagemAlunoDTO viagemAlunoAtualizada = viagemAlunoService.atualizar(id, dto);
-        return ResponseEntity.ok(viagemAlunoAtualizada);
+        ViagemAlunoDTO updatedStudentTrip = viagemAlunoService.update(id, dto);
+        return ResponseEntity.ok(updatedStudentTrip);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable Long id) {
-        viagemAlunoService.excluir(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        viagemAlunoService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

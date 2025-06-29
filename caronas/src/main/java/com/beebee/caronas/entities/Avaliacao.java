@@ -20,8 +20,8 @@ public class Avaliacao {
 
     private LocalDate data;
 
-    private String comentarioCaroneiro;
-    private Double notaCaroneiro;
+    private String comentarioMotorista;
+    private Double notaMotorista;
 
     private String comentarioCaronista;
     private Double notaCaronista;

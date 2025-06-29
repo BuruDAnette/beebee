@@ -15,31 +15,31 @@ public class AvaliacaoController {
     private final AvaliacaoService avaliacaoService;
 
     @GetMapping
-    public ResponseEntity<List<AvaliacaoDTO>> listarTodos() {
-        return ResponseEntity.ok(avaliacaoService.listarTodos());
+    public ResponseEntity<List<AvaliacaoDTO>> getAll() {
+        return ResponseEntity.ok(avaliacaoService.getAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AvaliacaoDTO> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(avaliacaoService.buscarPorId(id));
+    public ResponseEntity<AvaliacaoDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(avaliacaoService.getById(id));
     }
 
     @PostMapping
-    public ResponseEntity<AvaliacaoDTO> criar(@RequestBody AvaliacaoDTO dto) {
-        AvaliacaoDTO criado = avaliacaoService.salvar(dto);
-        return ResponseEntity.status(201).body(criado);
+    public ResponseEntity<AvaliacaoDTO> save(@RequestBody AvaliacaoDTO dto) {
+        AvaliacaoDTO savedRating = avaliacaoService.save(dto);
+        return ResponseEntity.status(201).body(savedRating);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AvaliacaoDTO> atualizar(@PathVariable Long id, @RequestBody AvaliacaoDTO dto) {
+    public ResponseEntity<AvaliacaoDTO> update(@PathVariable Long id, @RequestBody AvaliacaoDTO dto) {
         dto.setId(id);
-        AvaliacaoDTO atualizado = avaliacaoService.salvar(dto);
-        return ResponseEntity.ok(atualizado);
+        AvaliacaoDTO updatedRating = avaliacaoService.update(id, dto);
+        return ResponseEntity.ok(updatedRating);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        avaliacaoService.deletar(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        avaliacaoService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

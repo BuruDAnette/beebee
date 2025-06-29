@@ -15,47 +15,45 @@ public class HorarioAcademicoController {
     private final HorarioAcademicoService horarioService;
 
     @PostMapping
-    public ResponseEntity<HorarioAcademicoDTO> salvar(@RequestBody HorarioAcademicoDTO dto) {
-        HorarioAcademicoDTO horarioSalvo = horarioService.salvar(dto);
-        return ResponseEntity.ok(horarioSalvo);
+    public ResponseEntity<HorarioAcademicoDTO> save(@RequestBody HorarioAcademicoDTO dto) {
+        HorarioAcademicoDTO savedSchedule  = horarioService.save(dto);
+        return ResponseEntity.status(201).body(savedSchedule);
     }
 
     @PostMapping("/lote")
-    public ResponseEntity<List<HorarioAcademicoDTO>> salvarEmLote(@RequestBody List<HorarioAcademicoDTO> dtos) {
-        List<HorarioAcademicoDTO> horariosSalvos = horarioService.salvarEmLote(dtos);
-        return ResponseEntity.ok(horariosSalvos);
+    public ResponseEntity<List<HorarioAcademicoDTO>> saveBatch(@RequestBody List<HorarioAcademicoDTO> dtos) {
+        List<HorarioAcademicoDTO> savedSchedules = horarioService.saveBatch(dtos);
+        return ResponseEntity.ok(savedSchedules);
     }
 
     @GetMapping
-    public ResponseEntity<List<HorarioAcademicoDTO>> listarTodos() {
-        List<HorarioAcademicoDTO> horarios = horarioService.listarTodos();
-        return ResponseEntity.ok(horarios);
+    public ResponseEntity<List<HorarioAcademicoDTO>> getAll() {
+        List<HorarioAcademicoDTO> schedules = horarioService.getAll();
+        return ResponseEntity.ok(schedules);
     }
 
     @GetMapping("/aluno/{idAluno}")
-    public ResponseEntity<List<HorarioAcademicoDTO>> listarPorAluno(@PathVariable Long idAluno) {
-        List<HorarioAcademicoDTO> horarios = horarioService.listarPorAluno(idAluno);
-        return ResponseEntity.ok(horarios);
+    public ResponseEntity<List<HorarioAcademicoDTO>> getByStudentId(@PathVariable Long idAluno) {
+        List<HorarioAcademicoDTO> schedules = horarioService.getByStudentId(idAluno);
+        return ResponseEntity.ok(schedules);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<HorarioAcademicoDTO> buscarPorId(@PathVariable Long id) {
-        HorarioAcademicoDTO horario = horarioService.buscarPorId(id);
-        return ResponseEntity.ok(horario);
+    public ResponseEntity<HorarioAcademicoDTO> getById(@PathVariable Long id) {
+        HorarioAcademicoDTO schedule = horarioService.getById(id);
+        return ResponseEntity.ok(schedule);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<HorarioAcademicoDTO> atualizar(
-            @PathVariable Long id, 
-            @RequestBody HorarioAcademicoDTO dto) {
+    public ResponseEntity<HorarioAcademicoDTO> update(@PathVariable Long id, @RequestBody HorarioAcademicoDTO dto) {
         dto.setId(id); 
-        HorarioAcademicoDTO horarioAtualizado = horarioService.atualizar(id, dto);
-        return ResponseEntity.ok(horarioAtualizado);
+        HorarioAcademicoDTO updatedSchedule = horarioService.update(id, dto);
+        return ResponseEntity.ok(updatedSchedule);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable Long id) {
-        horarioService.excluir(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        horarioService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

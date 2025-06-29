@@ -21,7 +21,7 @@ public class Aluno {
     @Column(unique = true, nullable = false)
     private String email;
 
-    private Double mediaCaroneiro;
+    private Double mediaMotorista;
     private Double mediaCaronista;
 
     @Column(unique = true, nullable = false)
