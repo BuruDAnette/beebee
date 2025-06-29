@@ -11,7 +11,7 @@ public class AlunoDTO {
     private String nome;
     private String cpf;
     private String email;
-    private Double mediaCaroneiro;
+    private Double mediaMotorista;
     private Double mediaCaronista;
     private String login;
 }

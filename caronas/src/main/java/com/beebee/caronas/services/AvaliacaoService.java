@@ -26,8 +26,8 @@ public class AvaliacaoService {
             .id(avaliacao.getId())
             .descricao(avaliacao.getDescricao())
             .data(avaliacao.getData())
-            .comentarioCaroneiro(avaliacao.getComentarioCaroneiro())
-            .notaCaroneiro(avaliacao.getNotaCaroneiro())
+            .comentarioMotorista(avaliacao.getComentarioMotorista())
+            .notaMotorista(avaliacao.getNotaMotorista())
             .comentarioCaronista(avaliacao.getComentarioCaronista())
             .notaCaronista(avaliacao.getNotaCaronista())
             .viagemAlunoId(avaliacao.getViagemAluno().getId())
@@ -35,10 +35,10 @@ public class AvaliacaoService {
     }
 
     private Avaliacao toEntity(AvaliacaoDTO dto) {
-        ViagemAluno viagemAluno = viagemAlunoRepository.findById(dto.getViagemAlunoId())
+        ViagemAluno studentTrip = viagemAlunoRepository.findById(dto.getViagemAlunoId())
             .orElseThrow(() -> new ResourceNotFoundException("ViagemAluno", dto.getViagemAlunoId()));
 
-        if (dto.getNotaCaroneiro() < 1 || dto.getNotaCaroneiro() > 5) {
+        if (dto.getNotaMotorista() < 1 || dto.getNotaMotorista() > 5) {
             throw new BusinessRuleException("A nota deve ser entre 1 e 5");
         }
 
@@ -46,60 +46,60 @@ public class AvaliacaoService {
             .id(dto.getId())
             .descricao(dto.getDescricao())
             .data(dto.getData())
-            .comentarioCaroneiro(dto.getComentarioCaroneiro())
-            .notaCaroneiro(dto.getNotaCaroneiro())
+            .comentarioMotorista(dto.getComentarioMotorista())
+            .notaMotorista(dto.getNotaMotorista())
             .comentarioCaronista(dto.getComentarioCaronista())
             .notaCaronista(dto.getNotaCaronista())
-            .viagemAluno(viagemAluno)
+            .viagemAluno(studentTrip)
             .build();
     }
 
-    public AvaliacaoDTO salvar(AvaliacaoDTO dto) {
-        Avaliacao avaliacao = toEntity(dto);
-        avaliacao = avaliacaoRepository.save(avaliacao);
-        return toDTO(avaliacao);
+    public AvaliacaoDTO save(AvaliacaoDTO dto) {
+        Avaliacao savedRating = toEntity(dto);
+        savedRating = avaliacaoRepository.save(savedRating);
+        return toDTO(savedRating);
     }
-    public List<AvaliacaoDTO> listarTodos() {
+    public List<AvaliacaoDTO> getAll() {
         return avaliacaoRepository.findAll().stream()
             .map(this::toDTO)
             .collect(Collectors.toList());
     }
-    public AvaliacaoDTO buscarPorId(Long id) {
-        Avaliacao avaliacao = avaliacaoRepository.findById(id)
+    public AvaliacaoDTO getById(Long id) {
+        Avaliacao rating = avaliacaoRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Avaliação", id));
-        return toDTO(avaliacao);
+        return toDTO(rating);
     }
-    public AvaliacaoDTO atualizar(Long id, AvaliacaoDTO dto) {
+    public AvaliacaoDTO update(Long id, AvaliacaoDTO dto) {
         dto.setId(id);
-        Avaliacao avaliacao = avaliacaoRepository.findById(id)
+        Avaliacao rating = avaliacaoRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Avaliação", id));
 
         if (dto.getDescricao() != null) {
-            avaliacao.setDescricao(dto.getDescricao());
+            rating.setDescricao(dto.getDescricao());
         }
-        if (dto.getComentarioCaroneiro() != null) {
-            avaliacao.setComentarioCaroneiro(dto.getComentarioCaroneiro());
+        if (dto.getComentarioMotorista() != null) {
+            rating.setComentarioMotorista(dto.getComentarioMotorista());
         }
-        if (dto.getNotaCaroneiro() != null) {
-            if (dto.getNotaCaroneiro() < 1 || dto.getNotaCaroneiro() > 5) {
+        if (dto.getNotaMotorista() != null) {
+            if (dto.getNotaMotorista() < 1 || dto.getNotaMotorista() > 5) {
                 throw new BusinessRuleException("A nota deve ser entre 1 e 5");
             }
-            avaliacao.setNotaCaroneiro(dto.getNotaCaroneiro());
+            rating.setNotaMotorista(dto.getNotaMotorista());
         }
         if (dto.getComentarioCaronista() != null) {
-            avaliacao.setComentarioCaronista(dto.getComentarioCaronista());
+            rating.setComentarioCaronista(dto.getComentarioCaronista());
         }
         if (dto.getNotaCaronista() != null) {
             if (dto.getNotaCaronista() < 1 || dto.getNotaCaronista() > 5) {
                 throw new BusinessRuleException("A nota deve ser entre 1 e 5");
             }
-            avaliacao.setNotaCaronista(dto.getNotaCaronista());
+            rating.setNotaCaronista(dto.getNotaCaronista());
         }
 
-        Avaliacao avaliacaoAtualizada = avaliacaoRepository.save(avaliacao);
-        return toDTO(avaliacaoAtualizada);
+        Avaliacao updatedRating = avaliacaoRepository.save(rating);
+        return toDTO(updatedRating);
     }
-    public void deletar(Long id) {
+    public void delete(Long id) {
         if (!avaliacaoRepository.existsById(id)) {
             throw new ResourceNotFoundException("Avaliação", id);
         }

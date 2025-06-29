@@ -26,7 +26,7 @@ public class ViagemAlunoService {
     private final AlunoRepository alunoRepository;
     private final ViagemRepository viagemRepository;
 
-    private ViagemAlunoDTO converterParaDTO(ViagemAluno viagemAluno) {
+    private ViagemAlunoDTO toDTO(ViagemAluno viagemAluno) {
         return ViagemAlunoDTO.builder()
             .id(viagemAluno.getId())
             .dataSolicitacao(viagemAluno.getDataSolicitacao())
@@ -38,11 +38,11 @@ public class ViagemAlunoService {
             .build();
     }
 
-    private ViagemAluno converterParaEntidade(ViagemAlunoDTO dto) {
-        Aluno aluno = alunoRepository.findById(dto.getAlunoId())
+    private ViagemAluno toEntity(ViagemAlunoDTO dto) {
+        Aluno student = alunoRepository.findById(dto.getAlunoId())
             .orElseThrow(() -> new ResourceNotFoundException("Aluno", dto.getAlunoId()));
         
-        Viagem viagem = viagemRepository.findById(dto.getViagemId())
+        Viagem trip = viagemRepository.findById(dto.getViagemId())
             .orElseThrow(() -> new ResourceNotFoundException("Viagem", dto.getViagemId()));
 
         if (dto.getSituacao() == Situacao.CONFIRMADA && dto.getDataConfirmacao() == null) {
@@ -55,46 +55,46 @@ public class ViagemAlunoService {
             .dataConfirmacao(dto.getDataConfirmacao())
             .observacao(dto.getObservacao())
             .situacao(dto.getSituacao())
-            .aluno(aluno)
-            .viagem(viagem)
+            .aluno(student)
+            .viagem(trip)
             .build();
     }
 
-    public ViagemAlunoDTO salvar(ViagemAlunoDTO dto) {
-        ViagemAluno viagemAluno = converterParaEntidade(dto);
-        viagemAluno = viagemAlunoRepository.save(viagemAluno);
-        return converterParaDTO(viagemAluno);
+    public ViagemAlunoDTO save(ViagemAlunoDTO dto) {
+        ViagemAluno savedStudentTrip = toEntity(dto);
+        savedStudentTrip = viagemAlunoRepository.save(savedStudentTrip);
+        return toDTO(savedStudentTrip);
     }
-    public List<ViagemAlunoDTO> listarTodos() {
+    public List<ViagemAlunoDTO> getAll() {
         return viagemAlunoRepository.findAll()
             .stream()
-            .map(this::converterParaDTO)
+            .map(this::toDTO)
             .collect(Collectors.toList());
     }
-    public ViagemAlunoDTO buscarPorId(Long id) {
-        ViagemAluno viagemAluno = viagemAlunoRepository.findById(id)
+    public ViagemAlunoDTO getById(Long id) {
+        ViagemAluno studentTrip = viagemAlunoRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("ViagemAluno", id));
-        return converterParaDTO(viagemAluno);
+        return toDTO(studentTrip);
     }
 
-    public ViagemAlunoDTO atualizar(Long id, ViagemAlunoDTO dto) {
-        ViagemAluno viagemAluno = viagemAlunoRepository.findById(id)
+    public ViagemAlunoDTO update(Long id, ViagemAlunoDTO dto) {
+        ViagemAluno studentTrip = viagemAlunoRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("ViagemAluno", id));
 
         if (dto.getObservacao() != null) {
-            viagemAluno.setObservacao(dto.getObservacao());
+            studentTrip.setObservacao(dto.getObservacao());
         }
         if (dto.getSituacao() != null) {
-            viagemAluno.setSituacao(dto.getSituacao());
+            studentTrip.setSituacao(dto.getSituacao());
             if (dto.getSituacao() == Situacao.CONFIRMADA) {
-                viagemAluno.setDataConfirmacao(LocalDateTime.now());
+                studentTrip.setDataConfirmacao(LocalDateTime.now());
             }
         }
 
-        ViagemAluno viagemAlunoAtualizada = viagemAlunoRepository.save(viagemAluno);
-        return converterParaDTO(viagemAlunoAtualizada);
+        ViagemAluno updatedStudentTrip = viagemAlunoRepository.save(studentTrip);
+        return toDTO(updatedStudentTrip);
     }
-    public void excluir(Long id) {
+    public void delete(Long id) {
         if (!viagemAlunoRepository.existsById(id)) {
             throw new ResourceNotFoundException("ViagemAluno", id);
         }

@@ -4,7 +4,6 @@ import com.beebee.caronas.dto.ViagemDTO;
 import com.beebee.caronas.services.ViagemService;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,32 +16,32 @@ public class ViagemController {
     private final ViagemService viagemService;
 
     @GetMapping
-    public ResponseEntity<List<ViagemDTO>> listarTodos() {
-        return ResponseEntity.ok(viagemService.listarTodos());
+    public ResponseEntity<List<ViagemDTO>> getAll() {
+        return ResponseEntity.ok(viagemService.getAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ViagemDTO> buscarPorId(@PathVariable Long id) {
-        ViagemDTO dto = viagemService.buscarPorId(id);
+    public ResponseEntity<ViagemDTO> getById(@PathVariable Long id) {
+        ViagemDTO dto = viagemService.getById(id);
         return ResponseEntity.ok(dto);
     }
 
     @PostMapping
-    public ResponseEntity<ViagemDTO> criar(@RequestBody ViagemDTO dto) {
-        ViagemDTO criado = viagemService.salvar(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(criado);
+    public ResponseEntity<ViagemDTO> save(@RequestBody ViagemDTO dto) {
+        ViagemDTO savedTrip = viagemService.save(dto);
+        return ResponseEntity.status(201).body(savedTrip);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ViagemDTO> atualizar(@PathVariable Long id, @RequestBody ViagemDTO dto) {
+    public ResponseEntity<ViagemDTO> update(@PathVariable Long id, @RequestBody ViagemDTO dto) {
         dto.setId(id);
-        ViagemDTO atualizado = viagemService.atualizar(id, dto);
-        return ResponseEntity.ok(atualizado);
+        ViagemDTO updatedTrip = viagemService.update(id, dto);
+        return ResponseEntity.ok(updatedTrip);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        viagemService.excluir(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        viagemService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

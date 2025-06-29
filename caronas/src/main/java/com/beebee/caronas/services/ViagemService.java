@@ -23,7 +23,7 @@ public class ViagemService {
     private final ViagemRepository viagemRepository;
     private final AlunoRepository alunoRepository;
 
-    private ViagemDTO converterParaDTO(Viagem viagem) {
+    private ViagemDTO toDTO(Viagem viagem) {
         return ViagemDTO.builder()
             .id(viagem.getId())
             .descricao(viagem.getDescricao())
@@ -36,8 +36,8 @@ public class ViagemService {
             .build();
     }
 
-    private Viagem converterParaEntidade(ViagemDTO dto) {
-        Aluno motorista = alunoRepository.findById(dto.getMotoristaId())
+    private Viagem toEntity(ViagemDTO dto) {
+        Aluno driver = alunoRepository.findById(dto.getMotoristaId())
             .orElseThrow(() -> new ResourceNotFoundException("Motorista", dto.getMotoristaId()));
 
         if (dto.getDataInicio().isBefore(LocalDate.now())) {
@@ -52,43 +52,43 @@ public class ViagemService {
             .origem(dto.getOrigem())
             .destino(dto.getDestino())
             .situacao(dto.getSituacao())
-            .motorista(motorista)
+            .motorista(driver)
             .build();
     }
 
-    public ViagemDTO salvar(ViagemDTO dto) {
-        Viagem viagem = converterParaEntidade(dto);
-        viagem = viagemRepository.save(viagem);
-        return converterParaDTO(viagem);
+    public ViagemDTO save(ViagemDTO dto) {
+        Viagem savedTrip = toEntity(dto);
+        savedTrip = viagemRepository.save(savedTrip);
+        return toDTO(savedTrip);
     }
-    public List<ViagemDTO> listarTodos() {
+    public List<ViagemDTO> getAll() {
         return viagemRepository.findAll()
             .stream()
-            .map(this::converterParaDTO)
+            .map(this::toDTO)
             .collect(Collectors.toList());
     }
-    public ViagemDTO buscarPorId(Long id) {
-        Viagem viagem = viagemRepository.findById(id)
+    public ViagemDTO getById(Long id) {
+        Viagem trip = viagemRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Viagem", id));
-        return converterParaDTO(viagem);
+        return toDTO(trip);
     }
-    public ViagemDTO atualizar(Long id, ViagemDTO dto) {
+    public ViagemDTO update(Long id, ViagemDTO dto) {
         Objects.requireNonNull(id, "ID da viagem não pode ser nulo");
 
-        Viagem viagem = viagemRepository.findById(id)
+        Viagem trip = viagemRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Viagem", id));
 
         if (dto.getDescricao() != null) {
-            viagem.setDescricao(dto.getDescricao());
+            trip.setDescricao(dto.getDescricao());
         }
         if (dto.getSituacao() != null) {
-            viagem.setSituacao(dto.getSituacao());
+            trip.setSituacao(dto.getSituacao());
         }
 
-        Viagem viagemAtualizada = viagemRepository.save(viagem);
-        return converterParaDTO(viagemAtualizada);
+        Viagem updatedTrip = viagemRepository.save(trip);
+        return toDTO(updatedTrip);
     }
-    public void excluir(Long id) {
+    public void delete(Long id) {
         if (!viagemRepository.existsById(id)) {
             throw new ResourceNotFoundException("Viagem", id);
         }

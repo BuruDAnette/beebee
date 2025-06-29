@@ -20,7 +20,7 @@ public class HorarioAcademicoService {
     private final HorarioAcademicoRepository horarioRepository;
     private final AlunoRepository alunoRepository;
 
-    private HorarioAcademicoDTO converterParaDTO(HorarioAcademico horario) {
+    private HorarioAcademicoDTO toDTO(HorarioAcademico horario) {
         return HorarioAcademicoDTO.builder()
             .id(horario.getId())
             .descricao(horario.getDescricao())
@@ -31,8 +31,8 @@ public class HorarioAcademicoService {
             .build();
     }
 
-    private HorarioAcademico converterParaEntidade(HorarioAcademicoDTO dto) {
-        Aluno aluno = alunoRepository.findById(dto.getIdAluno())
+    private HorarioAcademico toEntity(HorarioAcademicoDTO dto) {
+        Aluno student = alunoRepository.findById(dto.getIdAluno())
             .orElseThrow(() -> new ResourceNotFoundException("Aluno", dto.getIdAluno()));
 
         return HorarioAcademico.builder()
@@ -41,62 +41,62 @@ public class HorarioAcademicoService {
             .dia(dto.getDia())
             .horario(dto.getHorario())
             .situacao(dto.getSituacao())
-            .aluno(aluno)
+            .aluno(student)
             .build();
     }
 
-    public HorarioAcademicoDTO salvar(HorarioAcademicoDTO dto) {
-        HorarioAcademico horarioSalvo = horarioRepository.save(converterParaEntidade(dto));
-        return converterParaDTO(horarioSalvo);
+    public HorarioAcademicoDTO save(HorarioAcademicoDTO dto) {
+        HorarioAcademico savedSchedule = horarioRepository.save(toEntity(dto));
+        return toDTO(savedSchedule);
     }
-    public List<HorarioAcademicoDTO> salvarEmLote(List<HorarioAcademicoDTO> dtos) {
-        List<HorarioAcademico> horarios = dtos.stream()
-            .map(this::converterParaEntidade)
+    public List<HorarioAcademicoDTO> saveBatch(List<HorarioAcademicoDTO> dtos) {
+        List<HorarioAcademico> savedSchedules = dtos.stream()
+            .map(this::toEntity)
             .toList();
-        return horarioRepository.saveAll(horarios)
+        return horarioRepository.saveAll(savedSchedules)
             .stream()
-            .map(this::converterParaDTO)
+            .map(this::toDTO)
             .toList();
     }
-    public List<HorarioAcademicoDTO> listarTodos() {
+    public List<HorarioAcademicoDTO> getAll() {
         return horarioRepository.findAll()
             .stream()
-            .map(this::converterParaDTO)
+            .map(this::toDTO)
             .collect(Collectors.toList());
     }
-    public List<HorarioAcademicoDTO> listarPorAluno(Long idAluno) {
+    public List<HorarioAcademicoDTO> getByStudentId(Long idAluno) {
         if (!alunoRepository.existsById(idAluno)) {
             throw new ResourceNotFoundException("Aluno", idAluno);
         }
         return horarioRepository.findByAlunoId(idAluno)
             .stream()
-            .map(this::converterParaDTO)
+            .map(this::toDTO)
             .collect(Collectors.toList());
     }
-    public HorarioAcademicoDTO buscarPorId(Long id) {
+    public HorarioAcademicoDTO getById(Long id) {
         return horarioRepository.findById(id)
-            .map(this::converterParaDTO)
+            .map(this::toDTO)
             .orElseThrow(() -> new ResourceNotFoundException("Horário acadêmico", id));
     }
-    public HorarioAcademicoDTO atualizar(Long id, HorarioAcademicoDTO dto) {
-        HorarioAcademico horario = horarioRepository.findById(id)
+    public HorarioAcademicoDTO update(Long id, HorarioAcademicoDTO dto) {
+        HorarioAcademico schedule = horarioRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Horário acadêmico", id));
 
-        horario.setDescricao(dto.getDescricao());
-        horario.setDia(dto.getDia());
-        horario.setHorario(dto.getHorario());
-        horario.setSituacao(dto.getSituacao());
+        schedule.setDescricao(dto.getDescricao());
+        schedule.setDia(dto.getDia());
+        schedule.setHorario(dto.getHorario());
+        schedule.setSituacao(dto.getSituacao());
 
-        if (!horario.getAluno().getId().equals(dto.getIdAluno())) {
-            Aluno novoAluno = alunoRepository.findById(dto.getIdAluno())
+        if (!schedule.getAluno().getId().equals(dto.getIdAluno())) {
+            Aluno newStudent = alunoRepository.findById(dto.getIdAluno())
                 .orElseThrow(() -> new ResourceNotFoundException("Aluno", dto.getIdAluno()));
-            horario.setAluno(novoAluno);
+            schedule.setAluno(newStudent);
         }
 
-        HorarioAcademico horarioAtualizado = horarioRepository.save(horario);
-        return converterParaDTO(horarioAtualizado);
+        HorarioAcademico updatedSchedule = horarioRepository.save(schedule);
+        return toDTO(updatedSchedule);
     }
-    public void excluir(Long id) {
+    public void delete(Long id) {
         if (!horarioRepository.existsById(id)) {
             throw new ResourceNotFoundException("Horário acadêmico", id);
         }

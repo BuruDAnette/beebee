@@ -21,7 +21,7 @@ public class VeiculoService {
     private final VeiculoRepository veiculoRepository;
     private final AlunoRepository alunoRepository;
 
-    private VeiculoDTO converterParaDTO(Veiculo veiculo) {
+    private VeiculoDTO toDTO(Veiculo veiculo) {
         return VeiculoDTO.builder()
             .id(veiculo.getId())
             .placa(veiculo.getPlaca())
@@ -31,7 +31,7 @@ public class VeiculoService {
             .build();
     }
 
-    private Veiculo converterParaEntidade(VeiculoDTO dto) {
+    private Veiculo toEntity(VeiculoDTO dto) {
         Aluno motorista = alunoRepository.findById(dto.getMotoristaId())
             .orElseThrow(() -> new ResourceNotFoundException("Motorista", dto.getMotoristaId()));
 
@@ -44,40 +44,40 @@ public class VeiculoService {
             .build();
     }
 
-    public VeiculoDTO salvar(VeiculoDTO dto) {
+    public VeiculoDTO save(VeiculoDTO dto) {
         if (dto.getPlaca() == null || dto.getPlaca().isBlank()) {
             throw new BusinessRuleException("Placa do veículo é obrigatória");
         }
-        Veiculo veiculo = converterParaEntidade(dto);
-        veiculo = veiculoRepository.save(veiculo);
-        return converterParaDTO(veiculo);
+        Veiculo savedVehicle = toEntity(dto);
+        savedVehicle = veiculoRepository.save(savedVehicle);
+        return toDTO(savedVehicle);
     }
-    public List<VeiculoDTO> listarTodos() {
+    public List<VeiculoDTO> getAll() {
         return veiculoRepository.findAll()
             .stream()
-            .map(this::converterParaDTO)
+            .map(this::toDTO)
             .collect(Collectors.toList());
     }
-    public VeiculoDTO buscarPorId(Long id) {
-        Veiculo veiculo = veiculoRepository.findById(id)
+    public VeiculoDTO getById(Long id) {
+        Veiculo vehicle = veiculoRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Veículo", id));
-        return converterParaDTO(veiculo);
+        return toDTO(vehicle);
     }
-    public VeiculoDTO atualizar(Long id, VeiculoDTO dto) {
-        Veiculo veiculo = veiculoRepository.findById(id)
+    public VeiculoDTO update(Long id, VeiculoDTO dto) {
+        Veiculo vehicle = veiculoRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Veículo", id));
 
         if (dto.getModelo() != null) {
-            veiculo.setModelo(dto.getModelo());
+            vehicle.setModelo(dto.getModelo());
         }
         if (dto.getCor() != null) {
-            veiculo.setCor(dto.getCor());
+            vehicle.setCor(dto.getCor());
         }
 
-        Veiculo veiculoAtualizado = veiculoRepository.save(veiculo);
-        return converterParaDTO(veiculoAtualizado);
+        Veiculo updatedVehicle = veiculoRepository.save(vehicle);
+        return toDTO(updatedVehicle);
     }
-    public void excluir(Long id) {
+    public void delete(Long id) {
         if (!veiculoRepository.existsById(id)) {
             throw new ResourceNotFoundException("Veículo", id);
         }
