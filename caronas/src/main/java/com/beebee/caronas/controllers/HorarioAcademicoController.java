@@ -2,6 +2,8 @@ package com.beebee.caronas.controllers;
 
 import com.beebee.caronas.dto.HorarioAcademicoDTO;
 import com.beebee.caronas.services.HorarioAcademicoService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,13 +17,13 @@ public class HorarioAcademicoController {
     private final HorarioAcademicoService horarioService;
 
     @PostMapping
-    public ResponseEntity<HorarioAcademicoDTO> save(@RequestBody HorarioAcademicoDTO dto) {
+    public ResponseEntity<HorarioAcademicoDTO> save(@Valid @RequestBody HorarioAcademicoDTO dto) {
         HorarioAcademicoDTO savedSchedule  = horarioService.save(dto);
         return ResponseEntity.status(201).body(savedSchedule);
     }
 
     @PostMapping("/lote")
-    public ResponseEntity<List<HorarioAcademicoDTO>> saveBatch(@RequestBody List<HorarioAcademicoDTO> dtos) {
+    public ResponseEntity<List<HorarioAcademicoDTO>> saveBatch(@Valid @RequestBody List<HorarioAcademicoDTO> dtos) {
         List<HorarioAcademicoDTO> savedSchedules = horarioService.saveBatch(dtos);
         return ResponseEntity.ok(savedSchedules);
     }
@@ -45,7 +47,7 @@ public class HorarioAcademicoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<HorarioAcademicoDTO> update(@PathVariable Long id, @RequestBody HorarioAcademicoDTO dto) {
+    public ResponseEntity<HorarioAcademicoDTO> update(@PathVariable Long id, @Valid @RequestBody HorarioAcademicoDTO dto) {
         dto.setId(id); 
         HorarioAcademicoDTO updatedSchedule = horarioService.update(id, dto);
         return ResponseEntity.ok(updatedSchedule);

@@ -2,6 +2,8 @@ package com.beebee.caronas.controllers;
 
 import com.beebee.caronas.dto.ViagemAlunoDTO;
 import com.beebee.caronas.services.ViagemAlunoService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +23,7 @@ public class ViagemAlunoController {
     }
 
     @PostMapping
-    public ResponseEntity<ViagemAlunoDTO> save(@RequestBody ViagemAlunoDTO dto) {
+    public ResponseEntity<ViagemAlunoDTO> save(@Valid @RequestBody ViagemAlunoDTO dto) {
         ViagemAlunoDTO savedStudentTrip = viagemAlunoService.save(dto);
         return ResponseEntity.status(201).body(savedStudentTrip);
     }
@@ -33,7 +35,7 @@ public class ViagemAlunoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ViagemAlunoDTO> update(@PathVariable Long id, @RequestBody ViagemAlunoDTO dto) {
+    public ResponseEntity<ViagemAlunoDTO> update(@PathVariable Long id, @Valid @RequestBody ViagemAlunoDTO dto) {
         dto.setId(id);
         ViagemAlunoDTO updatedStudentTrip = viagemAlunoService.update(id, dto);
         return ResponseEntity.ok(updatedStudentTrip);

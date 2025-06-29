@@ -2,6 +2,8 @@ package com.beebee.caronas.controllers;
 
 import com.beebee.caronas.dto.AvaliacaoDTO;
 import com.beebee.caronas.services.AvaliacaoService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,13 +27,13 @@ public class AvaliacaoController {
     }
 
     @PostMapping
-    public ResponseEntity<AvaliacaoDTO> save(@RequestBody AvaliacaoDTO dto) {
+    public ResponseEntity<AvaliacaoDTO> save(@Valid @RequestBody AvaliacaoDTO dto) {
         AvaliacaoDTO savedRating = avaliacaoService.save(dto);
         return ResponseEntity.status(201).body(savedRating);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AvaliacaoDTO> update(@PathVariable Long id, @RequestBody AvaliacaoDTO dto) {
+    public ResponseEntity<AvaliacaoDTO> update(@PathVariable Long id, @Valid @RequestBody AvaliacaoDTO dto) {
         dto.setId(id);
         AvaliacaoDTO updatedRating = avaliacaoService.update(id, dto);
         return ResponseEntity.ok(updatedRating);

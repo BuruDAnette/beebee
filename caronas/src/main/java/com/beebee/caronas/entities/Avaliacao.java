@@ -21,10 +21,10 @@ public class Avaliacao {
     private LocalDate data;
 
     private String comentarioMotorista;
-    private Double notaMotorista;
+    private Integer notaMotorista;
 
     private String comentarioCaronista;
-    private Double notaCaronista;
+    private Integer notaCaronista;
 
     @ManyToOne
     @JoinColumn(name = "idViagemAluno")

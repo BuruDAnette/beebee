@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import com.beebee.caronas.entities.ViagemAluno;
 import lombok.*;
+import jakarta.validation.constraints.*;
 
 @Data
 @NoArgsConstructor
@@ -11,10 +12,20 @@ import lombok.*;
 @Builder
 public class ViagemAlunoDTO {
     private Long id;
+
+    @PastOrPresent(message = "Data de solicitação não pode ser no futuro")
     private LocalDateTime dataSolicitacao;
     private LocalDateTime dataConfirmacao;
+
+    @Size(max = 500, message = "Observação não pode ultrapassar 500 caracteres")
     private String observacao;
+
+    @NotNull(message = "Situação é obrigatória")
     private ViagemAluno.Situacao situacao;
+
+    @NotNull(message = "ID do aluno é obrigatório")
     private Long alunoId;
+
+    @NotNull(message = "ID da viagem é obrigatório")
     private Long viagemId;
 }

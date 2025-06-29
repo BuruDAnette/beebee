@@ -2,6 +2,8 @@ package com.beebee.caronas.controllers;
 
 import com.beebee.caronas.dto.VeiculoDTO;
 import com.beebee.caronas.services.VeiculoService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,13 +27,13 @@ public class VeiculoController {
     }
 
     @PostMapping
-    public ResponseEntity<VeiculoDTO> save(@RequestBody VeiculoDTO dto) {
+    public ResponseEntity<VeiculoDTO> save(@Valid @RequestBody VeiculoDTO dto) {
         VeiculoDTO savedVehicle = veiculoService.save(dto);
         return ResponseEntity.status(201).body(savedVehicle);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<VeiculoDTO> update(@PathVariable Long id, @RequestBody VeiculoDTO dto) {
+    public ResponseEntity<VeiculoDTO> update(@PathVariable Long id, @Valid @RequestBody VeiculoDTO dto) {
         dto.setId(id);
         VeiculoDTO updatedVehicle = veiculoService.update(id, dto);
         return ResponseEntity.ok(updatedVehicle);
