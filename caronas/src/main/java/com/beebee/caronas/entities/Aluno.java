@@ -10,6 +10,12 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class Aluno {
+    public enum StatusCadastro { 
+        PENDENTE, 
+        ATIVO,    
+        DESATIVADO 
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,4 +35,8 @@ public class Aluno {
 
     @Column(nullable = false)
     private String senha;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusCadastro statusCadastro;
 }
