@@ -43,7 +43,7 @@ public class AlunoService {
             .mediaMotorista(dto.getMediaMotorista())
             .mediaCaronista(dto.getMediaCaronista())
             .login(dto.getLogin())
-            .senha("default")
+            .senha(dto.getSenha())
             .build();
     }
 
