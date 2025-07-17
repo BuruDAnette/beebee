@@ -35,4 +35,5 @@ public class ViagemDTO {
 
     @NotNull(message = "ID do motorista é obrigatório")
     private Long motoristaId;
+    private String motoristaNome;
 }

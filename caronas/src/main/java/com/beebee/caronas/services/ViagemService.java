@@ -36,6 +36,7 @@ public class ViagemService {
             .destino(viagem.getDestino())
             .situacao(viagem.getSituacao())
             .motoristaId(viagem.getMotorista().getId())
+            .motoristaNome(viagem.getMotorista().getNome())
             .build();
     }
 
