@@ -1,6 +1,7 @@
 package com.beebee.caronas.dto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import lombok.*;
 import jakarta.validation.constraints.*;
@@ -17,10 +18,10 @@ public class ViagemDTO {
 
     @NotNull(message = "Data de início é obrigatória")
     @FutureOrPresent(message = "Data de início deve ser hoje ou no futuro")
-    private LocalDate dataInicio;
+    private LocalDateTime dataInicio;
 
     @FutureOrPresent(message = "Data de fim deve ser hoje ou no futuro")
-    private LocalDate dataFim;
+    private LocalDateTime dataFim;
 
     @NotBlank(message = "Origem é obrigatória")
     @Size(max = 100, message = "Origem não pode ultrapassar 100 caracteres")

@@ -1,6 +1,7 @@
 package com.beebee.caronas.services;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -42,7 +43,7 @@ public class ViagemService {
         Aluno driver = alunoRepository.findById(dto.getMotoristaId())
             .orElseThrow(() -> new ResourceNotFoundException("Motorista", dto.getMotoristaId()));
 
-        if (dto.getDataInicio().isBefore(LocalDate.now())) {
+        if (dto.getDataInicio().isBefore(LocalDateTime.now())) {
             throw new BusinessRuleException("Data de início não pode ser no passado");
         }
         

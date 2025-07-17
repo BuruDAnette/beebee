@@ -1,6 +1,7 @@
 package com.beebee.caronas.entities;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,9 +19,9 @@ public class Viagem {
 
     private String descricao;
 
-    private LocalDate dataInicio;
+    private LocalDateTime  dataInicio;
 
-    private LocalDate dataFim;
+    private LocalDateTime  dataFim;
 
     private String origem;
 
