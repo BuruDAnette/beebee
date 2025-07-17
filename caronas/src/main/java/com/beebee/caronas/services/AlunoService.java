@@ -9,7 +9,6 @@ import com.beebee.caronas.dto.AlunoDTO;
 import com.beebee.caronas.dto.AlunoCadastroDTO;
 import com.beebee.caronas.dto.LoginDTO;
 import com.beebee.caronas.entities.Aluno;
-import com.beebee.caronas.entities.Aluno.StatusCadastro;
 import com.beebee.caronas.exceptions.BusinessRuleException;
 import com.beebee.caronas.exceptions.ResourceNotFoundException;
 import com.beebee.caronas.repositories.AlunoRepository;
@@ -30,7 +29,6 @@ public class AlunoService {
             .mediaMotorista(aluno.getMediaMotorista())
             .mediaCaronista(aluno.getMediaCaronista())
             .login(aluno.getLogin())
-            .statusCadastro(aluno.getStatusCadastro())
             .build();
     }
 
@@ -45,8 +43,6 @@ public class AlunoService {
             throw new BusinessRuleException("Email já está em uso");
         }
 
-        String rawPassword = dto.getSenha();
-
         return Aluno.builder()
             .nome(dto.getNome())
             .cpf(dto.getCpf())
@@ -54,8 +50,7 @@ public class AlunoService {
             .mediaMotorista(0.0)
             .mediaCaronista(0.0)
             .login(dto.getLogin())
-            .senha(rawPassword)
-            .statusCadastro(StatusCadastro.PENDENTE)
+            .senha(dto.getSenha())
             .build();
     }
 
@@ -92,14 +87,6 @@ public class AlunoService {
             student.setEmail(dto.getEmail());
         }
 
-        Aluno updatedStudent = alunoRepository.save(student);
-        return toDTO(updatedStudent);
-    }
-    
-    public AlunoDTO updateStatusCadastro(Long id, StatusCadastro newStatus) {
-        Aluno student = alunoRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Aluno", id));
-        student.setStatusCadastro(newStatus);
         Aluno updatedStudent = alunoRepository.save(student);
         return toDTO(updatedStudent);
     }

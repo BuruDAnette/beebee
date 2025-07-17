@@ -35,5 +35,7 @@ public class AlunoDTO {
     @Size(min = 4, max = 20, message = "Login deve ter entre 4 e 20 caracteres")
     private String login;
 
-    private Aluno.StatusCadastro statusCadastro;
+    private String senha;
+
+    //private Aluno.StatusCadastro statusCadastro;
 }

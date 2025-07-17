@@ -13,6 +13,7 @@ import com.beebee.caronas.entities.Viagem;
 import com.beebee.caronas.exceptions.BusinessRuleException;
 import com.beebee.caronas.exceptions.ResourceNotFoundException;
 import com.beebee.caronas.repositories.AlunoRepository;
+import com.beebee.caronas.repositories.VeiculoRepository; 
 import com.beebee.caronas.repositories.ViagemRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,8 @@ import lombok.RequiredArgsConstructor;
 public class ViagemService {
     private final ViagemRepository viagemRepository;
     private final AlunoRepository alunoRepository;
-
+    private final VeiculoRepository veiculoRepository; 
+    
     private ViagemDTO toDTO(Viagem viagem) {
         return ViagemDTO.builder()
             .id(viagem.getId())
@@ -57,6 +59,12 @@ public class ViagemService {
     }
 
     public ViagemDTO save(ViagemDTO dto) {
+        // 3. LÓGICA DE VERIFICAÇÃO ADICIONADA
+        boolean motoristaTemVeiculo = !veiculoRepository.findByMotoristaId(dto.getMotoristaId()).isEmpty();
+        if (!motoristaTemVeiculo) {
+            throw new BusinessRuleException("Para criar uma viagem, é necessário ter pelo menos um veículo cadastrado.");
+        }
+
         Viagem savedTrip = toEntity(dto);
         savedTrip = viagemRepository.save(savedTrip);
         return toDTO(savedTrip);

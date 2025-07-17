@@ -21,6 +21,11 @@ public class VeiculoController {
         return ResponseEntity.ok(veiculoService.getAll());
     }
 
+    @GetMapping("/motorista/{motoristaId}")
+    public ResponseEntity<List<VeiculoDTO>> getByMotoristaId(@PathVariable Long motoristaId) {
+        return ResponseEntity.ok(veiculoService.getByMotoristaId(motoristaId));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<VeiculoDTO> getById(@PathVariable Long id) {
         return ResponseEntity.ok(veiculoService.getById(id));
