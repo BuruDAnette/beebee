@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.beebee.caronas.dto.AlunoDTO;
 import com.beebee.caronas.dto.AlunoCadastroDTO;
+import com.beebee.caronas.dto.LoginDTO;
 import com.beebee.caronas.entities.Aluno;
 import com.beebee.caronas.entities.Aluno.StatusCadastro;
 import com.beebee.caronas.exceptions.BusinessRuleException;
@@ -111,11 +112,16 @@ public class AlunoService {
         return toDTO(updatedStudent);
     }
 
-
     public void delete(Long id) {
         if (!alunoRepository.existsById(id)) {
             throw new ResourceNotFoundException("Aluno", id);
         }
         alunoRepository.deleteById(id);
+    }
+
+    public AlunoDTO autenticar(LoginDTO dto) {
+        return alunoRepository.findByLoginAndSenha(dto.getLogin(), dto.getSenha())
+            .map(this::toDTO)
+            .orElseThrow(() -> new BusinessRuleException("Login ou senha inválidos"));
     }
 }

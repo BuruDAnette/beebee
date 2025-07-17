@@ -1,7 +1,8 @@
 package com.beebee.caronas.controllers;
 
 import com.beebee.caronas.dto.AlunoDTO;
-import com.beebee.caronas.dto.AlunoCadastroDTO; // NOVO: Importar o AlunoCadastroDTO
+import com.beebee.caronas.dto.AlunoCadastroDTO;
+import com.beebee.caronas.dto.LoginDTO;
 import com.beebee.caronas.services.AlunoService;
 
 import jakarta.validation.Valid;
@@ -22,6 +23,12 @@ public class AlunoController {
     public ResponseEntity<AlunoDTO> save(@Valid @RequestBody AlunoCadastroDTO alunoCadastroDTO) {
         AlunoDTO savedStudent = alunoService.save(alunoCadastroDTO);
         return ResponseEntity.status(201).body(savedStudent);
+    }
+
+    @PostMapping("/autenticar")
+    public ResponseEntity<AlunoDTO> autenticar(@RequestBody LoginDTO dto) {
+        AlunoDTO aluno = alunoService.autenticar(dto);
+        return ResponseEntity.ok(aluno);
     }
 
     @GetMapping
