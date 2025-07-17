@@ -9,6 +9,7 @@ import com.beebee.caronas.dto.AlunoDTO;
 import com.beebee.caronas.dto.AlunoCadastroDTO;
 import com.beebee.caronas.dto.LoginDTO;
 import com.beebee.caronas.entities.Aluno;
+import com.beebee.caronas.entities.Aluno.StatusCadastro;
 import com.beebee.caronas.exceptions.BusinessRuleException;
 import com.beebee.caronas.exceptions.ResourceNotFoundException;
 import com.beebee.caronas.repositories.AlunoRepository;
@@ -29,6 +30,7 @@ public class AlunoService {
             .mediaMotorista(aluno.getMediaMotorista())
             .mediaCaronista(aluno.getMediaCaronista())
             .login(aluno.getLogin())
+            .statusCadastro(aluno.getStatusCadastro())
             .build();
     }
 
