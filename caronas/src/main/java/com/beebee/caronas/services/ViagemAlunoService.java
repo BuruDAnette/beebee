@@ -51,7 +51,7 @@ public class ViagemAlunoService {
 
         return ViagemAluno.builder()
             .id(dto.getId())
-            .dataSolicitacao(dto.getDataSolicitacao())
+            .dataSolicitacao(LocalDateTime.now())
             .dataConfirmacao(dto.getDataConfirmacao())
             .observacao(dto.getObservacao())
             .situacao(dto.getSituacao())
