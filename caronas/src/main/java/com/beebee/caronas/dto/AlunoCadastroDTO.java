@@ -2,15 +2,12 @@ package com.beebee.caronas.dto;
 
 import lombok.*;
 import jakarta.validation.constraints.*;
-import com.beebee.caronas.entities.Aluno;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AlunoDTO {
-    private Long id;
-
+public class AlunoCadastroDTO {
     @NotBlank(message = "Nome é obrigatório")
     @Size(min = 3, max = 100, message = "Nome deve ter entre 3 e 100 caracteres")
     private String nome;
@@ -23,17 +20,11 @@ public class AlunoDTO {
     @Email(message = "Email deve ser válido")
     private String email;
 
-    @Min(value = 1, message = "Média do motorista não pode ser negativa")
-    @Max(value = 5, message = "Média do motorista não pode ser maior que 5")
-    private Double mediaMotorista;
-
-    @Min(value = 1, message = "Média do caronista não pode ser negativa")
-    @Max(value = 5, message = "Média do caronista não pode ser maior que 5")
-    private Double mediaCaronista;
-
     @NotBlank(message = "Login é obrigatório")
     @Size(min = 4, max = 20, message = "Login deve ter entre 4 e 20 caracteres")
     private String login;
 
-    private Aluno.StatusCadastro statusCadastro;
+    @NotBlank(message = "Senha é obrigatória")
+    @Size(min = 6, max = 30, message = "Senha deve ter entre 6 e 30 caracteres")
+    private String senha;
 }
