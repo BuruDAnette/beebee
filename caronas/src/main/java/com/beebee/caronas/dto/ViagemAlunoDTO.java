@@ -13,7 +13,6 @@ import jakarta.validation.constraints.*;
 public class ViagemAlunoDTO {
     private Long id;
 
-    @PastOrPresent(message = "Data de solicitação não pode ser no futuro")
     private LocalDateTime dataSolicitacao;
     private LocalDateTime dataConfirmacao;
 

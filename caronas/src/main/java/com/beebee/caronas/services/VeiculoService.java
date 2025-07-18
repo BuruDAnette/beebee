@@ -63,6 +63,14 @@ public class VeiculoService {
             .orElseThrow(() -> new ResourceNotFoundException("Veículo", id));
         return toDTO(vehicle);
     }
+
+    public List<VeiculoDTO> getByMotoristaId(Long motoristaId) {
+        return veiculoRepository.findByMotoristaId(motoristaId)
+            .stream()
+            .map(this::toDTO)
+            .collect(Collectors.toList());
+    }
+
     public VeiculoDTO update(Long id, VeiculoDTO dto) {
         Veiculo vehicle = veiculoRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Veículo", id));

@@ -30,7 +30,6 @@ public class AlunoService {
             .mediaMotorista(aluno.getMediaMotorista())
             .mediaCaronista(aluno.getMediaCaronista())
             .login(aluno.getLogin())
-            .statusCadastro(aluno.getStatusCadastro())
             .build();
     }
 
@@ -45,8 +44,6 @@ public class AlunoService {
             throw new BusinessRuleException("Email já está em uso");
         }
 
-        String rawPassword = dto.getSenha();
-
         return Aluno.builder()
             .nome(dto.getNome())
             .cpf(dto.getCpf())
@@ -54,8 +51,7 @@ public class AlunoService {
             .mediaMotorista(0.0)
             .mediaCaronista(0.0)
             .login(dto.getLogin())
-            .senha(rawPassword)
-            .statusCadastro(StatusCadastro.PENDENTE)
+            .senha(dto.getSenha())
             .build();
     }
 
