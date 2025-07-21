@@ -26,6 +26,16 @@ public class AvaliacaoController {
         return ResponseEntity.ok(avaliacaoService.getById(id));
     }
 
+    @GetMapping("/viagem-aluno/{viagemAlunoId}")
+    public ResponseEntity<AvaliacaoDTO> getByViagemAlunoId(@PathVariable Long viagemAlunoId) {
+        AvaliacaoDTO dto = avaliacaoService.getByViagemAlunoId(viagemAlunoId);
+        if (dto != null) {
+            return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
+
     @PostMapping
     public ResponseEntity<AvaliacaoDTO> save(@Valid @RequestBody AvaliacaoDTO dto) {
         AvaliacaoDTO savedRating = avaliacaoService.save(dto);

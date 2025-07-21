@@ -21,7 +21,6 @@ public class AvaliacaoDTO {
     @Size(max = 500, message = "Comentário do motorista não pode ultrapassar 500 caracteres")
     private String comentarioMotorista;
 
-    @NotNull(message = "Nota é obrigatória")
     @Min(value = 1, message = "Nota mínima é 1")
     @Max(value = 5, message = "Nota máxima é 5")
     private Integer notaMotorista;
@@ -29,7 +28,6 @@ public class AvaliacaoDTO {
     @Size(max = 500, message = "Comentário do caronista não pode ultrapassar 500 caracteres")
     private String comentarioCaronista;
 
-    @NotNull(message = "Nota é obrigatória")
     @Min(value = 1, message = "Nota mínima é 1")
     @Max(value = 5, message = "Nota máxima é 5")
     private Integer notaCaronista;

@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 public class ViagemAluno {
     public enum Situacao {
-        SOLICITADA, PENDENTE, CONFIRMADA, CANCELADA, FINALIZADA
+        SOLICITADA, PENDENTE, CONFIRMADA, CANCELADA, FINALIZADA, RECUSADA
     }
 
     @Id

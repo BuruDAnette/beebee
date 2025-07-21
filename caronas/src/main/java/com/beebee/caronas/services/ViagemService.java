@@ -6,10 +6,12 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.beebee.caronas.dto.ViagemDTO;
 import com.beebee.caronas.entities.Aluno;
 import com.beebee.caronas.entities.Viagem;
+import com.beebee.caronas.entities.ViagemAluno;
 import com.beebee.caronas.exceptions.BusinessRuleException;
 import com.beebee.caronas.exceptions.ResourceNotFoundException;
 import com.beebee.caronas.repositories.AlunoRepository;
@@ -90,35 +92,38 @@ public class ViagemService {
             .orElseThrow(() -> new ResourceNotFoundException("Viagem", id));
         return toDTO(trip);
     }
+
+    @Transactional
     public ViagemDTO update(Long id, ViagemDTO dto) {
         Viagem viagemExistente = viagemRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Viagem", id));
 
-        boolean temSolicitacoes = !viagemAlunoRepository.findByViagemId(id).isEmpty();
+        String statusAntigo = viagemExistente.getSituacao();
+        String statusNovo = dto.getSituacao();
 
-        
-        if (temSolicitacoes) {
-            if (dto.getDescricao() != null) {
-                viagemExistente.setDescricao(dto.getDescricao());
+        if ("CANCELADA".equals(statusNovo) && !"CANCELADA".equals(statusAntigo)) {
+            List<ViagemAluno> solicitacoes = viagemAlunoRepository.findByViagemId(id);
+            for (ViagemAluno solicitacao : solicitacoes) {
+                solicitacao.setSituacao(ViagemAluno.Situacao.CANCELADA);
             }
-            if (dto.getSituacao() != null) {
-                viagemExistente.setSituacao(dto.getSituacao());
-            }
-            if (dto.getOrigem() != null || dto.getDestino() != null || dto.getDataInicio() != null) {
-                throw new BusinessRuleException("Não é possível alterar os detalhes da viagem pois ela já possui solicitações.");
-            }
-        
-        } else {
-            if (dto.getDescricao() != null) viagemExistente.setDescricao(dto.getDescricao());
-            if (dto.getSituacao() != null) viagemExistente.setSituacao(dto.getSituacao());
-            if (dto.getOrigem() != null) viagemExistente.setOrigem(dto.getOrigem());
-            if (dto.getDestino() != null) viagemExistente.setDestino(dto.getDestino());
-            if (dto.getDataInicio() != null) viagemExistente.setDataInicio(dto.getDataInicio());
-            if (dto.getDataFim() != null) viagemExistente.setDataFim(dto.getDataFim());
+            viagemAlunoRepository.saveAll(solicitacoes);
         }
 
-        Viagem viagemAtualizada = viagemRepository.save(viagemExistente);
+        if ("FINALIZADA".equals(statusNovo) && !"FINALIZADA".equals(statusAntigo)) {
+            viagemExistente.setDataFim(LocalDateTime.now());
+            List<ViagemAluno> solicitacoes = viagemAlunoRepository.findByViagemId(id);
+            for (ViagemAluno solicitacao : solicitacoes) {
+                if (solicitacao.getSituacao() == ViagemAluno.Situacao.CONFIRMADA || solicitacao.getSituacao() == ViagemAluno.Situacao.PENDENTE) {
+                    solicitacao.setSituacao(ViagemAluno.Situacao.FINALIZADA);
+                }
+            }
+            viagemAlunoRepository.saveAll(solicitacoes);
+        }
+        
+        if (dto.getDescricao() != null) viagemExistente.setDescricao(dto.getDescricao());
+        if (statusNovo != null) viagemExistente.setSituacao(statusNovo);
 
+        Viagem viagemAtualizada = viagemRepository.save(viagemExistente);
         return toDTO(viagemAtualizada);
     }
 
