@@ -44,10 +44,6 @@ public class ViagemService {
     private Viagem toEntity(ViagemDTO dto) {
         Aluno driver = alunoRepository.findById(dto.getMotoristaId())
             .orElseThrow(() -> new ResourceNotFoundException("Motorista", dto.getMotoristaId()));
-
-        if (dto.getDataInicio().isBefore(LocalDateTime.now())) {
-            throw new BusinessRuleException("Data de início não pode ser no passado");
-        }
         
         return Viagem.builder()
             .id(dto.getId())
@@ -66,15 +62,20 @@ public class ViagemService {
         if (!motoristaTemVeiculo) {
             throw new BusinessRuleException("Para criar uma viagem, é necessário ter pelo menos um veículo cadastrado.");
         }
+        
+        if (dto.getDataInicio().isBefore(LocalDateTime.now())) {
+            throw new BusinessRuleException("A data de início da viagem não pode ser no passado.");
+        }
 
         Viagem savedTrip = toEntity(dto);
         savedTrip = viagemRepository.save(savedTrip);
         return toDTO(savedTrip);
     }
+
     public List<ViagemDTO> getAll() {
         return viagemRepository.findAll()
             .stream()
-            .filter(viagem -> "PLANEJADA".equals(viagem.getSituacao()))
+            .filter(viagem -> "PLANEJADA".equals(viagem.getSituacao()) || "EM_ANDAMENTO".equals(viagem.getSituacao()))
             .map(this::toDTO)
             .collect(Collectors.toList());
     }
@@ -90,39 +91,50 @@ public class ViagemService {
         return toDTO(trip);
     }
     public ViagemDTO update(Long id, ViagemDTO dto) {
-        Objects.requireNonNull(id, "ID da viagem não pode ser nulo");
+        Viagem viagemExistente = viagemRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Viagem", id));
 
-        Viagem trip = viagemRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Viagem", id));
+        boolean temSolicitacoes = !viagemAlunoRepository.findByViagemId(id).isEmpty();
 
-        boolean hasRequests = !viagemAlunoRepository.findByViagemId(id).isEmpty();
-
-        if (hasRequests) {
+        
+        if (temSolicitacoes) {
             if (dto.getDescricao() != null) {
-                trip.setDescricao(dto.getDescricao());
+                viagemExistente.setDescricao(dto.getDescricao());
             }
             if (dto.getSituacao() != null) {
-                trip.setSituacao(dto.getSituacao());
+                viagemExistente.setSituacao(dto.getSituacao());
             }
             if (dto.getOrigem() != null || dto.getDestino() != null || dto.getDataInicio() != null) {
                 throw new BusinessRuleException("Não é possível alterar os detalhes da viagem pois ela já possui solicitações.");
             }
+        
         } else {
-            if (dto.getDescricao() != null) trip.setDescricao(dto.getDescricao());
-            if (dto.getSituacao() != null) trip.setSituacao(dto.getSituacao());
-            if (dto.getOrigem() != null) trip.setOrigem(dto.getOrigem());
-            if (dto.getDestino() != null) trip.setDestino(dto.getDestino());
-            if (dto.getDataInicio() != null) trip.setDataInicio(dto.getDataInicio());
-            if (dto.getDataFim() != null) trip.setDataFim(dto.getDataFim());
+            if (dto.getDescricao() != null) viagemExistente.setDescricao(dto.getDescricao());
+            if (dto.getSituacao() != null) viagemExistente.setSituacao(dto.getSituacao());
+            if (dto.getOrigem() != null) viagemExistente.setOrigem(dto.getOrigem());
+            if (dto.getDestino() != null) viagemExistente.setDestino(dto.getDestino());
+            if (dto.getDataInicio() != null) viagemExistente.setDataInicio(dto.getDataInicio());
+            if (dto.getDataFim() != null) viagemExistente.setDataFim(dto.getDataFim());
         }
 
-        Viagem updatedTrip = viagemRepository.save(trip);
-        return toDTO(updatedTrip);
+        Viagem viagemAtualizada = viagemRepository.save(viagemExistente);
+
+        return toDTO(viagemAtualizada);
     }
+
     public void delete(Long id) {
         if (!viagemRepository.existsById(id)) {
             throw new ResourceNotFoundException("Viagem", id);
         }
         viagemRepository.deleteById(id);
+    }
+
+    public List<ViagemDTO> getHistoricoByMotoristaId(Long motoristaId) {
+        List<String> situacoesHistorico = List.of("FINALIZADA", "CANCELADA");
+        
+        return viagemRepository.findByMotoristaIdAndSituacaoIn(motoristaId, situacoesHistorico)
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 }

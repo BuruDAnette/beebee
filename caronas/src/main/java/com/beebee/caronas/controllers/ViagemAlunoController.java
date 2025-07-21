@@ -22,16 +22,28 @@ public class ViagemAlunoController {
         return ResponseEntity.ok(studentTrip);
     }
 
-    @PostMapping
-    public ResponseEntity<ViagemAlunoDTO> save(@Valid @RequestBody ViagemAlunoDTO dto) {
-        ViagemAlunoDTO savedStudentTrip = viagemAlunoService.save(dto);
-        return ResponseEntity.status(201).body(savedStudentTrip);
-    }
-
     @GetMapping
     public ResponseEntity<List<ViagemAlunoDTO>> getAll() {
         List<ViagemAlunoDTO> studentTrips = viagemAlunoService.getAll();
         return ResponseEntity.ok(studentTrips);
+    }
+
+    @GetMapping("/aluno/{alunoId}")
+    public ResponseEntity<List<ViagemAlunoDTO>> getByAlunoId(@PathVariable Long alunoId) {
+        List<ViagemAlunoDTO> viagensDoAluno = viagemAlunoService.findByAlunoId(alunoId);
+        return ResponseEntity.ok(viagensDoAluno);
+    }
+
+    @GetMapping("/viagem/{viagemId}")
+    public ResponseEntity<List<ViagemAlunoDTO>> getByViagemId(@PathVariable Long viagemId) {
+        List<ViagemAlunoDTO> pedidosDaViagem = viagemAlunoService.findByViagemId(viagemId);
+        return ResponseEntity.ok(pedidosDaViagem);
+    }
+
+    @PostMapping
+    public ResponseEntity<ViagemAlunoDTO> save(@Valid @RequestBody ViagemAlunoDTO dto) {
+        ViagemAlunoDTO savedStudentTrip = viagemAlunoService.save(dto);
+        return ResponseEntity.status(201).body(savedStudentTrip);
     }
 
     @PutMapping("/{id}")

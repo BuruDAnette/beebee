@@ -114,4 +114,29 @@ public class ViagemAlunoService {
         }
         viagemAlunoRepository.deleteById(id);
     }
+
+    /**
+     * @param alunoId 
+     * @return 
+     */
+    public List<ViagemAlunoDTO> findByAlunoId(Long alunoId) {
+        List<ViagemAluno> viagensDoAluno = viagemAlunoRepository.findByAlunoId(alunoId);
+
+        return viagensDoAluno.stream()
+                .map(ViagemAlunoDTO::new) 
+                .collect(Collectors.toList()); 
+    }
+
+    /**
+     * @param viagemId 
+     * @return 
+     */
+    public List<ViagemAlunoDTO> findByViagemId(Long viagemId) {
+        List<ViagemAluno> pedidosDaViagem = viagemAlunoRepository.findByViagemId(viagemId);
+
+        return pedidosDaViagem.stream()
+                .map(ViagemAlunoDTO::new) 
+                .collect(Collectors.toList()); 
+    }
+
 }

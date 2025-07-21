@@ -51,4 +51,9 @@ public class ViagemController {
         viagemService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/historico/motorista/{motoristaId}")
+    public ResponseEntity<List<ViagemDTO>> getHistoricoByMotoristaId(@PathVariable Long motoristaId) {
+        return ResponseEntity.ok(viagemService.getHistoricoByMotoristaId(motoristaId));
+    }
 }

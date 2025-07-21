@@ -29,4 +29,15 @@ public class ViagemAlunoDTO {
 
     @NotNull(message = "A viagem é obrigatória")
     private ViagemDTO viagem;
+
+    public ViagemAlunoDTO(ViagemAluno entity) {
+        this.id = entity.getId();
+        this.dataSolicitacao = entity.getDataSolicitacao();
+        this.dataConfirmacao = entity.getDataConfirmacao();
+        this.observacao = entity.getObservacao();
+        this.situacao = entity.getSituacao();
+        this.alunoId = entity.getAluno().getId();
+        this.alunoNome = entity.getAluno().getNome();
+        this.viagem = new ViagemDTO(entity.getViagem());
+    }
 }

@@ -14,4 +14,5 @@ public interface ViagemAlunoRepository extends JpaRepository<ViagemAluno, Long> 
     boolean existsByAlunoIdAndViagemId(Long alunoId, Long viagemId);
 
     List<ViagemAluno> findByAlunoId(Long alunoId);
+    
 }

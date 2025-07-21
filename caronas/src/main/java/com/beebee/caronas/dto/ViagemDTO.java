@@ -3,6 +3,8 @@ package com.beebee.caronas.dto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.beebee.caronas.entities.Viagem;
+
 import lombok.*;
 import jakarta.validation.constraints.*;
 
@@ -36,4 +38,16 @@ public class ViagemDTO {
     @NotNull(message = "ID do motorista é obrigatório")
     private Long motoristaId;
     private String motoristaNome;
+
+    public ViagemDTO(Viagem entity) {
+        this.id = entity.getId();
+        this.descricao = entity.getDescricao();
+        this.dataInicio = entity.getDataInicio();
+        this.dataFim = entity.getDataFim();
+        this.origem = entity.getOrigem();
+        this.destino = entity.getDestino();
+        this.situacao = entity.getSituacao().toString();
+        this.motoristaId = entity.getMotorista().getId();
+        this.motoristaNome = entity.getMotorista().getNome();
+    }
 }
