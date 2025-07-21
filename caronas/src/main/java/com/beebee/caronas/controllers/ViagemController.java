@@ -28,6 +28,11 @@ public class ViagemController {
         return ResponseEntity.ok(dto);
     }
 
+    @GetMapping("/motorista/{motoristaId}")
+    public ResponseEntity<List<ViagemDTO>> getByMotoristaId(@PathVariable Long motoristaId) {
+        return ResponseEntity.ok(viagemService.getByMotoristaId(motoristaId));
+    }
+
     @PostMapping
     public ResponseEntity<ViagemDTO> save(@Valid @RequestBody ViagemDTO dto) {
         ViagemDTO savedTrip = viagemService.save(dto);

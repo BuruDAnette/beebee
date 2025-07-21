@@ -1,6 +1,5 @@
 package com.beebee.caronas.entities;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;

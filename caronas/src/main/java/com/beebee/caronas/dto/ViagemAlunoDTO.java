@@ -25,6 +25,8 @@ public class ViagemAlunoDTO {
     @NotNull(message = "ID do aluno é obrigatório")
     private Long alunoId;
 
-    @NotNull(message = "ID da viagem é obrigatório")
-    private Long viagemId;
+    private String alunoNome;
+
+    @NotNull(message = "A viagem é obrigatória")
+    private ViagemDTO viagem;
 }

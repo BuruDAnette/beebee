@@ -1,6 +1,5 @@
 package com.beebee.caronas.services;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -14,7 +13,8 @@ import com.beebee.caronas.entities.Viagem;
 import com.beebee.caronas.exceptions.BusinessRuleException;
 import com.beebee.caronas.exceptions.ResourceNotFoundException;
 import com.beebee.caronas.repositories.AlunoRepository;
-import com.beebee.caronas.repositories.VeiculoRepository; 
+import com.beebee.caronas.repositories.VeiculoRepository;
+import com.beebee.caronas.repositories.ViagemAlunoRepository;
 import com.beebee.caronas.repositories.ViagemRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -25,6 +25,7 @@ public class ViagemService {
     private final ViagemRepository viagemRepository;
     private final AlunoRepository alunoRepository;
     private final VeiculoRepository veiculoRepository; 
+    private final ViagemAlunoRepository viagemAlunoRepository;
     
     private ViagemDTO toDTO(Viagem viagem) {
         return ViagemDTO.builder()
@@ -61,7 +62,6 @@ public class ViagemService {
     }
 
     public ViagemDTO save(ViagemDTO dto) {
-        // 3. LÓGICA DE VERIFICAÇÃO ADICIONADA
         boolean motoristaTemVeiculo = !veiculoRepository.findByMotoristaId(dto.getMotoristaId()).isEmpty();
         if (!motoristaTemVeiculo) {
             throw new BusinessRuleException("Para criar uma viagem, é necessário ter pelo menos um veículo cadastrado.");
@@ -73,6 +73,13 @@ public class ViagemService {
     }
     public List<ViagemDTO> getAll() {
         return viagemRepository.findAll()
+            .stream()
+            .filter(viagem -> "PLANEJADA".equals(viagem.getSituacao()))
+            .map(this::toDTO)
+            .collect(Collectors.toList());
+    }
+    public List<ViagemDTO> getByMotoristaId(Long motoristaId) {
+        return viagemRepository.findByMotoristaId(motoristaId)
             .stream()
             .map(this::toDTO)
             .collect(Collectors.toList());
@@ -88,11 +95,25 @@ public class ViagemService {
         Viagem trip = viagemRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Viagem", id));
 
-        if (dto.getDescricao() != null) {
-            trip.setDescricao(dto.getDescricao());
-        }
-        if (dto.getSituacao() != null) {
-            trip.setSituacao(dto.getSituacao());
+        boolean hasRequests = !viagemAlunoRepository.findByViagemId(id).isEmpty();
+
+        if (hasRequests) {
+            if (dto.getDescricao() != null) {
+                trip.setDescricao(dto.getDescricao());
+            }
+            if (dto.getSituacao() != null) {
+                trip.setSituacao(dto.getSituacao());
+            }
+            if (dto.getOrigem() != null || dto.getDestino() != null || dto.getDataInicio() != null) {
+                throw new BusinessRuleException("Não é possível alterar os detalhes da viagem pois ela já possui solicitações.");
+            }
+        } else {
+            if (dto.getDescricao() != null) trip.setDescricao(dto.getDescricao());
+            if (dto.getSituacao() != null) trip.setSituacao(dto.getSituacao());
+            if (dto.getOrigem() != null) trip.setOrigem(dto.getOrigem());
+            if (dto.getDestino() != null) trip.setDestino(dto.getDestino());
+            if (dto.getDataInicio() != null) trip.setDataInicio(dto.getDataInicio());
+            if (dto.getDataFim() != null) trip.setDataFim(dto.getDataFim());
         }
 
         Viagem updatedTrip = viagemRepository.save(trip);

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.beebee.caronas.dto.ViagemAlunoDTO;
+import com.beebee.caronas.dto.ViagemDTO;
 import com.beebee.caronas.entities.Aluno;
 import com.beebee.caronas.entities.Viagem;
 import com.beebee.caronas.entities.ViagemAluno;
@@ -34,25 +35,21 @@ public class ViagemAlunoService {
             .observacao(viagemAluno.getObservacao())
             .situacao(viagemAluno.getSituacao())
             .alunoId(viagemAluno.getAluno().getId())
-            .viagemId(viagemAluno.getViagem().getId())
+            .alunoNome(viagemAluno.getAluno().getNome())
+            .viagem(toViagemDTO(viagemAluno.getViagem()))
             .build();
     }
 
     private ViagemAluno toEntity(ViagemAlunoDTO dto) {
         Aluno student = alunoRepository.findById(dto.getAlunoId())
             .orElseThrow(() -> new ResourceNotFoundException("Aluno", dto.getAlunoId()));
-        
-        Viagem trip = viagemRepository.findById(dto.getViagemId())
-            .orElseThrow(() -> new ResourceNotFoundException("Viagem", dto.getViagemId()));
 
-        if (dto.getSituacao() == Situacao.CONFIRMADA && dto.getDataConfirmacao() == null) {
-            throw new BusinessRuleException("Data de confirmação é obrigatória");
-        }
+        Viagem trip = viagemRepository.findById(dto.getViagem().getId())
+            .orElseThrow(() -> new ResourceNotFoundException("Viagem", dto.getViagem().getId()));
 
         return ViagemAluno.builder()
             .id(dto.getId())
-            .dataSolicitacao(LocalDateTime.now())
-            .dataConfirmacao(dto.getDataConfirmacao())
+            .dataSolicitacao(LocalDateTime.now()) 
             .observacao(dto.getObservacao())
             .situacao(dto.getSituacao())
             .aluno(student)
@@ -60,7 +57,24 @@ public class ViagemAlunoService {
             .build();
     }
 
+    private ViagemDTO toViagemDTO(Viagem viagem) {
+        return ViagemDTO.builder()
+            .id(viagem.getId())
+            .descricao(viagem.getDescricao())
+            .dataInicio(viagem.getDataInicio())
+            .dataFim(viagem.getDataFim())
+            .origem(viagem.getOrigem())
+            .destino(viagem.getDestino())
+            .situacao(viagem.getSituacao())
+            .motoristaId(viagem.getMotorista().getId())
+            .motoristaNome(viagem.getMotorista().getNome())
+            .build();
+    }
+
     public ViagemAlunoDTO save(ViagemAlunoDTO dto) {
+        if (viagemAlunoRepository.existsByAlunoIdAndViagemId(dto.getAlunoId(), dto.getViagem().getId())) {
+            throw new BusinessRuleException("Você já solicitou participação nesta viagem.");
+        }
         ViagemAluno savedStudentTrip = toEntity(dto);
         savedStudentTrip = viagemAlunoRepository.save(savedStudentTrip);
         return toDTO(savedStudentTrip);

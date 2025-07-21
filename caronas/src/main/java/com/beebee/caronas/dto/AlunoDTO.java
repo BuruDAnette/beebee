@@ -2,7 +2,6 @@ package com.beebee.caronas.dto;
 
 import lombok.*;
 import jakarta.validation.constraints.*;
-import com.beebee.caronas.entities.Aluno;
 
 @Data
 @NoArgsConstructor

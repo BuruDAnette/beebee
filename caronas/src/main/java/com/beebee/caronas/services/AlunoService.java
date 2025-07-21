@@ -9,7 +9,6 @@ import com.beebee.caronas.dto.AlunoDTO;
 import com.beebee.caronas.dto.AlunoCadastroDTO;
 import com.beebee.caronas.dto.LoginDTO;
 import com.beebee.caronas.entities.Aluno;
-import com.beebee.caronas.entities.Aluno.StatusCadastro;
 import com.beebee.caronas.exceptions.BusinessRuleException;
 import com.beebee.caronas.exceptions.ResourceNotFoundException;
 import com.beebee.caronas.repositories.AlunoRepository;
@@ -88,14 +87,6 @@ public class AlunoService {
             student.setEmail(dto.getEmail());
         }
 
-        Aluno updatedStudent = alunoRepository.save(student);
-        return toDTO(updatedStudent);
-    }
-    
-    public AlunoDTO updateStatusCadastro(Long id, StatusCadastro newStatus) {
-        Aluno student = alunoRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Aluno", id));
-        student.setStatusCadastro(newStatus);
         Aluno updatedStudent = alunoRepository.save(student);
         return toDTO(updatedStudent);
     }
