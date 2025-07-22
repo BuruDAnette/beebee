@@ -2,17 +2,22 @@ package com.beebee.caronas.services;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.beebee.caronas.dto.AvaliacaoDTO;
+import com.beebee.caronas.entities.Aluno;
 import com.beebee.caronas.entities.Avaliacao;
+import com.beebee.caronas.entities.Viagem;
 import com.beebee.caronas.entities.ViagemAluno;
 import com.beebee.caronas.exceptions.BusinessRuleException;
 import com.beebee.caronas.exceptions.ResourceNotFoundException;
+import com.beebee.caronas.repositories.AlunoRepository;
 import com.beebee.caronas.repositories.AvaliacaoRepository;
 import com.beebee.caronas.repositories.ViagemAlunoRepository;
+import com.beebee.caronas.repositories.ViagemRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +27,8 @@ import lombok.RequiredArgsConstructor;
 public class AvaliacaoService {
     private final AvaliacaoRepository avaliacaoRepository;
     private final ViagemAlunoRepository viagemAlunoRepository;
+    private final ViagemRepository viagemRepository;
+    private final AlunoRepository alunoRepository;
 
     private AvaliacaoDTO toDTO(Avaliacao avaliacao) {
         return AvaliacaoDTO.builder()
@@ -86,7 +93,46 @@ public class AvaliacaoService {
         }
 
         Avaliacao avaliacaoSalva = avaliacaoRepository.save(avaliacao);
+
+        if (dto.getNotaMotorista() != null) {
+            recalcularMediaMotorista(avaliacaoSalva.getViagemAluno().getViagem().getMotorista());
+        }
+        if (dto.getNotaCaronista() != null) {
+            recalcularMediaCaronista(avaliacaoSalva.getViagemAluno().getAluno());
+        }
+
         return toDTO(avaliacaoSalva);
+    }
+
+    private void recalcularMediaMotorista(Aluno motorista) {
+        List<Viagem> viagens = viagemRepository.findByMotoristaId(motorista.getId());
+        List<ViagemAluno> participacoes = viagemAlunoRepository.findByViagemIn(viagens);
+        List<Avaliacao> avaliacoes = avaliacaoRepository.findByViagemAlunoIn(participacoes);
+
+        double media = avaliacoes.stream()
+            .map(Avaliacao::getNotaMotorista)
+            .filter(Objects::nonNull)
+            .mapToInt(Integer::intValue)
+            .average()
+            .orElse(0.0);
+
+        motorista.setMediaMotorista(media);
+        alunoRepository.save(motorista);
+    }
+
+    private void recalcularMediaCaronista(Aluno caronista) {
+        List<ViagemAluno> participacoes = viagemAlunoRepository.findByAlunoId(caronista.getId());
+        List<Avaliacao> avaliacoes = avaliacaoRepository.findByViagemAlunoIn(participacoes);
+        
+        double media = avaliacoes.stream()
+            .map(Avaliacao::getNotaCaronista)
+            .filter(Objects::nonNull)
+            .mapToInt(Integer::intValue)
+            .average()
+            .orElse(0.0);
+            
+        caronista.setMediaCaronista(media);
+        alunoRepository.save(caronista);
     }
     
     public List<AvaliacaoDTO> getAll() {

@@ -1,10 +1,12 @@
 package com.beebee.caronas.services;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,7 @@ public class ViagemService {
     private final AlunoRepository alunoRepository;
     private final VeiculoRepository veiculoRepository; 
     private final ViagemAlunoRepository viagemAlunoRepository;
+    private final NotificacaoService notificacaoService;
     
     private ViagemDTO toDTO(Viagem viagem) {
         return ViagemDTO.builder()
@@ -40,6 +43,7 @@ public class ViagemService {
             .situacao(viagem.getSituacao())
             .motoristaId(viagem.getMotorista().getId())
             .motoristaNome(viagem.getMotorista().getNome())
+            .mediaMotorista(viagem.getMotorista().getMediaMotorista())
             .build();
     }
 
@@ -74,13 +78,37 @@ public class ViagemService {
         return toDTO(savedTrip);
     }
 
-    public List<ViagemDTO> getAll() {
-        return viagemRepository.findAll()
+    public List<ViagemDTO> getAll(String origem, String destino, LocalDate data) {
+        Specification<Viagem> spec = (root, query, criteriaBuilder) -> {
+            return root.get("situacao").in("PLANEJADA", "EM_ANDAMENTO");
+        };
+
+        if (origem != null && !origem.trim().isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) -> 
+                criteriaBuilder.like(criteriaBuilder.lower(root.get("origem")), "%" + origem.toLowerCase() + "%")
+            );
+        }
+
+        if (destino != null && !destino.trim().isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) -> 
+                criteriaBuilder.like(criteriaBuilder.lower(root.get("destino")), "%" + destino.toLowerCase() + "%")
+            );
+        }
+
+        if (data != null) {
+            spec = spec.and((root, query, criteriaBuilder) -> {
+                LocalDateTime inicioDoDia = data.atStartOfDay();
+                LocalDateTime fimDoDia = data.plusDays(1).atStartOfDay().minusNanos(1);
+                return criteriaBuilder.between(root.get("dataInicio"), inicioDoDia, fimDoDia);
+            });
+        }
+
+        return viagemRepository.findAll(spec)
             .stream()
-            .filter(viagem -> "PLANEJADA".equals(viagem.getSituacao()) || "EM_ANDAMENTO".equals(viagem.getSituacao()))
             .map(this::toDTO)
             .collect(Collectors.toList());
     }
+
     public List<ViagemDTO> getByMotoristaId(Long motoristaId) {
         return viagemRepository.findByMotoristaId(motoristaId)
             .stream()
@@ -104,6 +132,12 @@ public class ViagemService {
         if ("CANCELADA".equals(statusNovo) && !"CANCELADA".equals(statusAntigo)) {
             List<ViagemAluno> solicitacoes = viagemAlunoRepository.findByViagemId(id);
             for (ViagemAluno solicitacao : solicitacoes) {
+                if (solicitacao.getSituacao() == ViagemAluno.Situacao.CONFIRMADA) {
+                    Aluno passageiro = solicitacao.getAluno();
+                    String mensagem = "A viagem para " + viagemExistente.getDestino() + " foi cancelada pelo motorista.";
+                    String link = "/app/minhas-viagens";
+                    notificacaoService.criarNotificacao(passageiro, mensagem, link);
+                }
                 solicitacao.setSituacao(ViagemAluno.Situacao.CANCELADA);
             }
             viagemAlunoRepository.saveAll(solicitacoes);

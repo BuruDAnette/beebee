@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.beebee.caronas.dto.ViagemAlunoDTO;
 import com.beebee.caronas.dto.ViagemDTO;
@@ -26,6 +27,7 @@ public class ViagemAlunoService {
     private final ViagemAlunoRepository viagemAlunoRepository;
     private final AlunoRepository alunoRepository;
     private final ViagemRepository viagemRepository;
+    private final NotificacaoService notificacaoService;
 
     private ViagemAlunoDTO toDTO(ViagemAluno viagemAluno) {
         return ViagemAlunoDTO.builder()
@@ -37,6 +39,7 @@ public class ViagemAlunoService {
             .alunoId(viagemAluno.getAluno().getId())
             .alunoNome(viagemAluno.getAluno().getNome())
             .viagem(toViagemDTO(viagemAluno.getViagem()))
+            .mediaCaronista(viagemAluno.getAluno().getMediaCaronista())
             .build();
     }
 
@@ -71,12 +74,19 @@ public class ViagemAlunoService {
             .build();
     }
 
+    @Transactional
     public ViagemAlunoDTO save(ViagemAlunoDTO dto) {
         if (viagemAlunoRepository.existsByAlunoIdAndViagemId(dto.getAlunoId(), dto.getViagem().getId())) {
             throw new BusinessRuleException("Você já solicitou participação nesta viagem.");
         }
         ViagemAluno savedStudentTrip = toEntity(dto);
         savedStudentTrip = viagemAlunoRepository.save(savedStudentTrip);
+
+        Aluno motorista = savedStudentTrip.getViagem().getMotorista();
+        String mensagem = savedStudentTrip.getAluno().getNome() + " solicitou participação na sua carona.";
+        String link = "/app/viagens/" + savedStudentTrip.getViagem().getId();
+        notificacaoService.criarNotificacao(motorista, mensagem, link);
+
         return toDTO(savedStudentTrip);
     }
     public List<ViagemAlunoDTO> getAll() {
@@ -91,23 +101,44 @@ public class ViagemAlunoService {
         return toDTO(studentTrip);
     }
 
+    @Transactional
     public ViagemAlunoDTO update(Long id, ViagemAlunoDTO dto) {
         ViagemAluno studentTrip = viagemAlunoRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("ViagemAluno", id));
 
+        Situacao statusAntigo = studentTrip.getSituacao();
+        Situacao statusNovo = dto.getSituacao();
+
         if (dto.getObservacao() != null) {
             studentTrip.setObservacao(dto.getObservacao());
         }
-        if (dto.getSituacao() != null) {
-            studentTrip.setSituacao(dto.getSituacao());
-            if (dto.getSituacao() == Situacao.CONFIRMADA) {
+
+        if (statusNovo != null) {
+            studentTrip.setSituacao(statusNovo);
+            if (statusNovo == Situacao.CONFIRMADA) {
                 studentTrip.setDataConfirmacao(LocalDateTime.now());
             }
         }
 
         ViagemAluno updatedStudentTrip = viagemAlunoRepository.save(studentTrip);
+
+        if (statusNovo != null && statusNovo != statusAntigo) {
+            Aluno passageiro = updatedStudentTrip.getAluno();
+            String link = "/app/viagens/" + updatedStudentTrip.getViagem().getId();
+            String mensagem = "";
+
+            if (statusNovo == Situacao.CONFIRMADA) {
+                mensagem = "Seu pedido de carona para " + updatedStudentTrip.getViagem().getDestino() + " foi aceite!";
+                notificacaoService.criarNotificacao(passageiro, mensagem, link);
+            } else if (statusNovo == Situacao.RECUSADA) {
+                mensagem = "Seu pedido de carona para " + updatedStudentTrip.getViagem().getDestino() + " foi recusado.";
+                notificacaoService.criarNotificacao(passageiro, mensagem, link);
+            }
+        }
+
         return toDTO(updatedStudentTrip);
     }
+
     public void delete(Long id) {
         if (!viagemAlunoRepository.existsById(id)) {
             throw new ResourceNotFoundException("ViagemAluno", id);

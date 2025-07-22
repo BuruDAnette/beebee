@@ -39,6 +39,8 @@ public class ViagemDTO {
     private Long motoristaId;
     private String motoristaNome;
 
+    private Double mediaMotorista;
+
     public ViagemDTO(Viagem entity) {
         this.id = entity.getId();
         this.descricao = entity.getDescricao();
@@ -49,5 +51,6 @@ public class ViagemDTO {
         this.situacao = entity.getSituacao().toString();
         this.motoristaId = entity.getMotorista().getId();
         this.motoristaNome = entity.getMotorista().getNome();
+        this.mediaMotorista = entity.getMotorista().getMediaMotorista();
     }
 }

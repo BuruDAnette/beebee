@@ -4,11 +4,13 @@ import com.beebee.caronas.dto.AlunoDTO;
 import com.beebee.caronas.dto.AlunoCadastroDTO;
 import com.beebee.caronas.dto.LoginDTO;
 import com.beebee.caronas.services.AlunoService;
+import com.beebee.caronas.dto.AlterarSenhaDTO;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,6 +33,14 @@ public class AlunoController {
         return ResponseEntity.ok(aluno);
     }
 
+    @PostMapping("/{id}/foto")
+    public ResponseEntity<AlunoDTO> uploadFoto(
+            @PathVariable Long id, 
+            @RequestParam("file") MultipartFile file) {
+        AlunoDTO alunoAtualizado = alunoService.updateFoto(id, file);
+        return ResponseEntity.ok(alunoAtualizado);
+    }
+
     @GetMapping
     public ResponseEntity<List<AlunoDTO>> getAll() {
         List<AlunoDTO> students = alunoService.getAll();
@@ -48,6 +58,12 @@ public class AlunoController {
         alunoDTO.setId(id);
         AlunoDTO updatedStudent = alunoService.update(id, alunoDTO);
         return ResponseEntity.ok(updatedStudent);
+    }
+
+    @PutMapping("/{id}/senha")
+    public ResponseEntity<Void> updatePassword(@PathVariable Long id, @Valid @RequestBody AlterarSenhaDTO dto) {
+        alunoService.updatePassword(id, dto.getSenhaAtual(), dto.getNovaSenha());
+        return ResponseEntity.noContent().build();
     }
     
     @DeleteMapping("/{id}")

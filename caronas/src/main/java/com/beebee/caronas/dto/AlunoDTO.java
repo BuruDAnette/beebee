@@ -35,4 +35,6 @@ public class AlunoDTO {
     private String login;
 
     private String senha;
+
+    private String fotoUrl;
 }

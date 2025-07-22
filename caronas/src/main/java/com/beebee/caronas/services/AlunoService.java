@@ -2,8 +2,10 @@ package com.beebee.caronas.services;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.beebee.caronas.dto.AlunoDTO;
 import com.beebee.caronas.dto.AlunoCadastroDTO;
@@ -19,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AlunoService {
     private final AlunoRepository alunoRepository;
+    private final FileStorageService fileStorageService;
 
     private AlunoDTO toDTO(Aluno aluno) {
         return AlunoDTO.builder()
@@ -29,6 +32,7 @@ public class AlunoService {
             .mediaMotorista(aluno.getMediaMotorista())
             .mediaCaronista(aluno.getMediaCaronista())
             .login(aluno.getLogin())
+            .fotoUrl(aluno.getFotoUrl())
             .build();
     }
 
@@ -91,12 +95,16 @@ public class AlunoService {
         return toDTO(updatedStudent);
     }
 
-    public AlunoDTO updatePassword(Long id, String newPassword) {
-        Aluno student = alunoRepository.findById(id)
+    public void updatePassword(Long id, String senhaAtual, String novaSenha) {
+        Aluno aluno = alunoRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Aluno", id));
-        student.setSenha(newPassword);
-        Aluno updatedStudent = alunoRepository.save(student);
-        return toDTO(updatedStudent);
+
+        if (!Objects.equals(aluno.getSenha(), senhaAtual)) {
+            throw new BusinessRuleException("A senha atual está incorreta.");
+        }
+        
+        aluno.setSenha(novaSenha);
+        alunoRepository.save(aluno);
     }
 
     public void delete(Long id) {
@@ -110,5 +118,16 @@ public class AlunoService {
         return alunoRepository.findByLoginAndSenha(dto.getLogin(), dto.getSenha())
             .map(this::toDTO)
             .orElseThrow(() -> new BusinessRuleException("Login ou senha inválidos"));
+    }
+
+    public AlunoDTO updateFoto(Long id, MultipartFile file) {
+        Aluno aluno = alunoRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Aluno", id));
+
+        String fotoUrl = fileStorageService.storeFile(file);
+        aluno.setFotoUrl(fotoUrl);
+        
+        Aluno alunoAtualizado = alunoRepository.save(aluno);
+        return toDTO(alunoAtualizado);
     }
 }

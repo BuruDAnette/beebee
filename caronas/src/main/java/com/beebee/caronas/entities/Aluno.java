@@ -29,4 +29,6 @@ public class Aluno {
 
     @Column(nullable = false)
     private String senha;
+
+    private String fotoUrl;
 }

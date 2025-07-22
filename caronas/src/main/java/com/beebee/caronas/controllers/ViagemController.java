@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -18,8 +20,11 @@ public class ViagemController {
     private final ViagemService viagemService;
 
     @GetMapping
-    public ResponseEntity<List<ViagemDTO>> getAll() {
-        return ResponseEntity.ok(viagemService.getAll());
+    public ResponseEntity<List<ViagemDTO>> getAll(
+            @RequestParam(required = false) String origem,
+            @RequestParam(required = false) String destino,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
+        return ResponseEntity.ok(viagemService.getAll(origem, destino, data));
     }
 
     @GetMapping("/{id}")
