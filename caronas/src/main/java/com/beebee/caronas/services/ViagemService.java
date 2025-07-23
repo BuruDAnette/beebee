@@ -21,7 +21,6 @@ import com.beebee.caronas.repositories.VeiculoRepository;
 import com.beebee.caronas.repositories.ViagemAlunoRepository;
 import com.beebee.caronas.repositories.ViagemRepository;
 import com.beebee.caronas.entities.Veiculo;
-import com.beebee.caronas.repositories.VeiculoRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,6 +33,7 @@ public class ViagemService {
     private final ViagemAlunoRepository viagemAlunoRepository;
     private final NotificacaoService notificacaoService;
     
+    // O método toDTO permanece o mesmo
     private ViagemDTO toDTO(Viagem viagem) {
         ViagemDTO.ViagemDTOBuilder builder = ViagemDTO.builder()
             .id(viagem.getId())
@@ -57,6 +57,7 @@ public class ViagemService {
         return builder.build();
     }
 
+    // O método toEntity permanece o mesmo
     private Viagem toEntity(ViagemDTO dto) {
         Aluno driver = alunoRepository.findById(dto.getMotoristaId())
             .orElseThrow(() -> new ResourceNotFoundException("Motorista", dto.getMotoristaId()));
@@ -80,6 +81,7 @@ public class ViagemService {
             .build();
     }
 
+    // O método save permanece o mesmo
     public ViagemDTO save(ViagemDTO dto) {
         boolean motoristaTemVeiculo = !veiculoRepository.findByMotoristaId(dto.getMotoristaId()).isEmpty();
         if (!motoristaTemVeiculo) {
@@ -95,6 +97,7 @@ public class ViagemService {
         return toDTO(savedTrip);
     }
 
+    // Os métodos getAll, getByMotoristaId e getById permanecem os mesmos
     public List<ViagemDTO> getAll(String origem, String destino, LocalDate data) {
         Specification<Viagem> spec = (root, query, criteriaBuilder) -> {
             return root.get("situacao").in("PLANEJADA", "EM_ANDAMENTO");
@@ -137,48 +140,87 @@ public class ViagemService {
             .orElseThrow(() -> new ResourceNotFoundException("Viagem", id));
         return toDTO(trip);
     }
-
+    
+    // MÉTODO UPDATE AJUSTADO
     @Transactional
     public ViagemDTO update(Long id, ViagemDTO dto) {
         Viagem viagemExistente = viagemRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Viagem", id));
 
         if (!"PLANEJADA".equals(viagemExistente.getSituacao())) {
-            throw new BusinessRuleException("Só é possível editar viagens que estão no estado 'PLANEJADA'.");
+            throw new BusinessRuleException("Só é possível editar os detalhes de viagens que estão no estado 'PLANEJADA'.");
         }
 
         if (!viagemAlunoRepository.findByViagemId(id).isEmpty()) {
             throw new BusinessRuleException("Não é possível editar uma viagem que já possui solicitações de passageiros.");
         }
         
-        String statusAntigo = viagemExistente.getSituacao();
-        String statusNovo = dto.getSituacao();
-
-        if ("CANCELADA".equals(statusNovo) && !"CANCELADA".equals(statusAntigo)) {
-            List<ViagemAluno> solicitacoes = viagemAlunoRepository.findByViagemId(id);
-            for (ViagemAluno solicitacao : solicitacoes) {
-                solicitacao.setSituacao(ViagemAluno.Situacao.CANCELADA);
-            }
-            viagemAlunoRepository.saveAll(solicitacoes);
-        }
-        
         viagemExistente.setOrigem(dto.getOrigem());
         viagemExistente.setDestino(dto.getDestino());
         viagemExistente.setDataInicio(dto.getDataInicio());
         viagemExistente.setDescricao(dto.getDescricao());
-        viagemExistente.setDataFim(dto.getDataFim());
         if (dto.getVeiculoId() != null) {
             Veiculo veiculo = veiculoRepository.findById(dto.getVeiculoId())
                 .orElseThrow(() -> new ResourceNotFoundException("Veículo", dto.getVeiculoId()));
             viagemExistente.setVeiculo(veiculo);
         }
 
-        if (statusNovo != null) viagemExistente.setSituacao(statusNovo);
-
         Viagem viagemAtualizada = viagemRepository.save(viagemExistente);
         return toDTO(viagemAtualizada);
     }
 
+    // NOVO MÉTODO
+    @Transactional
+    public ViagemDTO iniciarViagem(Long id) {
+        Viagem viagem = viagemRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Viagem", id));
+
+        if (!"PLANEJADA".equals(viagem.getSituacao())) {
+            throw new BusinessRuleException("Só é possível iniciar viagens que estão no estado 'PLANEJADA'.");
+        }
+        viagem.setSituacao("EM_ANDAMENTO");
+        return toDTO(viagemRepository.save(viagem));
+    }
+
+    // NOVO MÉTODO
+    @Transactional
+    public ViagemDTO encerrarViagem(Long id) {
+        Viagem viagem = viagemRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Viagem", id));
+
+        if (!"EM_ANDAMENTO".equals(viagem.getSituacao())) {
+            throw new BusinessRuleException("Só é possível encerrar viagens que estão 'EM ANDAMENTO'.");
+        }
+        viagem.setSituacao("FINALIZADA");
+        viagem.setDataFim(LocalDateTime.now());
+        return toDTO(viagemRepository.save(viagem));
+    }
+
+    // NOVO MÉTODO
+    @Transactional
+    public ViagemDTO cancelarViagem(Long id) {
+        Viagem viagem = viagemRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Viagem", id));
+        
+        if ("FINALIZADA".equals(viagem.getSituacao()) || "CANCELADA".equals(viagem.getSituacao())) {
+            throw new BusinessRuleException("Esta viagem não pode mais ser cancelada.");
+        }
+
+        viagem.setSituacao("CANCELADA");
+        // Notificar passageiros
+        List<ViagemAluno> solicitacoes = viagemAlunoRepository.findByViagemId(id);
+        for (ViagemAluno solicitacao : solicitacoes) {
+            solicitacao.setSituacao(ViagemAluno.Situacao.CANCELADA);
+            // Criar notificação
+            String mensagem = "A viagem de " + viagem.getOrigem() + " para " + viagem.getDestino() + " foi cancelada pelo motorista.";
+            notificacaoService.criarNotificacao(solicitacao.getAluno(), mensagem, "/app/minhas-viagens");
+        }
+        viagemAlunoRepository.saveAll(solicitacoes);
+        
+        return toDTO(viagemRepository.save(viagem));
+    }
+    
+    // O método delete e getHistoricoByMotoristaId permanecem os mesmos
     public void delete(Long id) {
         if (!viagemRepository.existsById(id)) {
             throw new ResourceNotFoundException("Viagem", id);

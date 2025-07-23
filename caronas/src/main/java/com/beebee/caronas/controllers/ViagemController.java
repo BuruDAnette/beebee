@@ -19,6 +19,8 @@ import java.util.List;
 public class ViagemController {
     private final ViagemService viagemService;
 
+    // ... os métodos @GetMapping, @PostMapping e @DeleteMapping permanecem os mesmos ...
+
     @GetMapping
     public ResponseEntity<List<ViagemDTO>> getAll(
             @RequestParam(required = false) String origem,
@@ -44,12 +46,34 @@ public class ViagemController {
         return ResponseEntity.status(201).body(savedTrip);
     }
 
+    // MÉTODO PUT AJUSTADO
     @PutMapping("/{id}")
     public ResponseEntity<ViagemDTO> update(@PathVariable Long id, @Valid @RequestBody ViagemDTO dto) {
-        dto.setId(id);
         ViagemDTO updatedTrip = viagemService.update(id, dto);
         return ResponseEntity.ok(updatedTrip);
     }
+    
+    // NOVO ENDPOINT
+    @PostMapping("/{id}/iniciar")
+    public ResponseEntity<ViagemDTO> iniciarViagem(@PathVariable Long id) {
+        ViagemDTO updatedTrip = viagemService.iniciarViagem(id);
+        return ResponseEntity.ok(updatedTrip);
+    }
+
+    // NOVO ENDPOINT
+    @PostMapping("/{id}/encerrar")
+    public ResponseEntity<ViagemDTO> encerrarViagem(@PathVariable Long id) {
+        ViagemDTO updatedTrip = viagemService.encerrarViagem(id);
+        return ResponseEntity.ok(updatedTrip);
+    }
+
+    // NOVO ENDPOINT
+    @PostMapping("/{id}/cancelar")
+    public ResponseEntity<ViagemDTO> cancelarViagem(@PathVariable Long id) {
+        ViagemDTO updatedTrip = viagemService.cancelarViagem(id);
+        return ResponseEntity.ok(updatedTrip);
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
