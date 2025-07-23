@@ -31,4 +31,8 @@ public class Viagem {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "idAluno", nullable = false)
     private Aluno motorista;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "idVeiculo")
+    private Veiculo veiculo;
 }

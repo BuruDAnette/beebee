@@ -41,6 +41,11 @@ public class ViagemDTO {
 
     private Double mediaMotorista;
 
+    private Long veiculoId;
+    private String veiculoModelo;
+    private String veiculoPlaca;
+    private String veiculoCor;
+
     public ViagemDTO(Viagem entity) {
         this.id = entity.getId();
         this.descricao = entity.getDescricao();
@@ -52,5 +57,12 @@ public class ViagemDTO {
         this.motoristaId = entity.getMotorista().getId();
         this.motoristaNome = entity.getMotorista().getNome();
         this.mediaMotorista = entity.getMotorista().getMediaMotorista();
+
+        if (entity.getVeiculo() != null) {
+            this.veiculoId = entity.getVeiculo().getId();
+            this.veiculoModelo = entity.getVeiculo().getModelo();
+            this.veiculoPlaca = entity.getVeiculo().getPlaca();
+            this.veiculoCor = entity.getVeiculo().getCor();
+        }
     }
 }

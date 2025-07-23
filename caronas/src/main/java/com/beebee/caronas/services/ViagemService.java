@@ -20,6 +20,8 @@ import com.beebee.caronas.repositories.AlunoRepository;
 import com.beebee.caronas.repositories.VeiculoRepository;
 import com.beebee.caronas.repositories.ViagemAlunoRepository;
 import com.beebee.caronas.repositories.ViagemRepository;
+import com.beebee.caronas.entities.Veiculo;
+import com.beebee.caronas.repositories.VeiculoRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,7 +35,7 @@ public class ViagemService {
     private final NotificacaoService notificacaoService;
     
     private ViagemDTO toDTO(Viagem viagem) {
-        return ViagemDTO.builder()
+        ViagemDTO.ViagemDTOBuilder builder = ViagemDTO.builder()
             .id(viagem.getId())
             .descricao(viagem.getDescricao())
             .dataInicio(viagem.getDataInicio())
@@ -43,13 +45,27 @@ public class ViagemService {
             .situacao(viagem.getSituacao())
             .motoristaId(viagem.getMotorista().getId())
             .motoristaNome(viagem.getMotorista().getNome())
-            .mediaMotorista(viagem.getMotorista().getMediaMotorista())
-            .build();
+            .mediaMotorista(viagem.getMotorista().getMediaMotorista());
+        
+        if (viagem.getVeiculo() != null) {
+            builder.veiculoId(viagem.getVeiculo().getId())
+                .veiculoModelo(viagem.getVeiculo().getModelo())
+                .veiculoPlaca(viagem.getVeiculo().getPlaca())
+                .veiculoCor(viagem.getVeiculo().getCor());
+        }
+        
+        return builder.build();
     }
 
     private Viagem toEntity(ViagemDTO dto) {
         Aluno driver = alunoRepository.findById(dto.getMotoristaId())
             .orElseThrow(() -> new ResourceNotFoundException("Motorista", dto.getMotoristaId()));
+        
+        Veiculo veiculo = null;
+        if (dto.getVeiculoId() != null) {
+            veiculo = veiculoRepository.findById(dto.getVeiculoId())
+                .orElseThrow(() -> new ResourceNotFoundException("Veículo", dto.getVeiculoId()));
+        }
         
         return Viagem.builder()
             .id(dto.getId())
@@ -60,6 +76,7 @@ public class ViagemService {
             .destino(dto.getDestino())
             .situacao(dto.getSituacao())
             .motorista(driver)
+            .veiculo(veiculo)
             .build();
     }
 
@@ -126,35 +143,36 @@ public class ViagemService {
         Viagem viagemExistente = viagemRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Viagem", id));
 
+        if (!"PLANEJADA".equals(viagemExistente.getSituacao())) {
+            throw new BusinessRuleException("Só é possível editar viagens que estão no estado 'PLANEJADA'.");
+        }
+
+        if (!viagemAlunoRepository.findByViagemId(id).isEmpty()) {
+            throw new BusinessRuleException("Não é possível editar uma viagem que já possui solicitações de passageiros.");
+        }
+        
         String statusAntigo = viagemExistente.getSituacao();
         String statusNovo = dto.getSituacao();
 
         if ("CANCELADA".equals(statusNovo) && !"CANCELADA".equals(statusAntigo)) {
             List<ViagemAluno> solicitacoes = viagemAlunoRepository.findByViagemId(id);
             for (ViagemAluno solicitacao : solicitacoes) {
-                if (solicitacao.getSituacao() == ViagemAluno.Situacao.CONFIRMADA) {
-                    Aluno passageiro = solicitacao.getAluno();
-                    String mensagem = "A viagem para " + viagemExistente.getDestino() + " foi cancelada pelo motorista.";
-                    String link = "/app/minhas-viagens";
-                    notificacaoService.criarNotificacao(passageiro, mensagem, link);
-                }
                 solicitacao.setSituacao(ViagemAluno.Situacao.CANCELADA);
             }
             viagemAlunoRepository.saveAll(solicitacoes);
         }
-
-        if ("FINALIZADA".equals(statusNovo) && !"FINALIZADA".equals(statusAntigo)) {
-            viagemExistente.setDataFim(LocalDateTime.now());
-            List<ViagemAluno> solicitacoes = viagemAlunoRepository.findByViagemId(id);
-            for (ViagemAluno solicitacao : solicitacoes) {
-                if (solicitacao.getSituacao() == ViagemAluno.Situacao.CONFIRMADA || solicitacao.getSituacao() == ViagemAluno.Situacao.PENDENTE) {
-                    solicitacao.setSituacao(ViagemAluno.Situacao.FINALIZADA);
-                }
-            }
-            viagemAlunoRepository.saveAll(solicitacoes);
-        }
         
-        if (dto.getDescricao() != null) viagemExistente.setDescricao(dto.getDescricao());
+        viagemExistente.setOrigem(dto.getOrigem());
+        viagemExistente.setDestino(dto.getDestino());
+        viagemExistente.setDataInicio(dto.getDataInicio());
+        viagemExistente.setDescricao(dto.getDescricao());
+        viagemExistente.setDataFim(dto.getDataFim());
+        if (dto.getVeiculoId() != null) {
+            Veiculo veiculo = veiculoRepository.findById(dto.getVeiculoId())
+                .orElseThrow(() -> new ResourceNotFoundException("Veículo", dto.getVeiculoId()));
+            viagemExistente.setVeiculo(veiculo);
+        }
+
         if (statusNovo != null) viagemExistente.setSituacao(statusNovo);
 
         Viagem viagemAtualizada = viagemRepository.save(viagemExistente);
