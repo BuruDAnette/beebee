@@ -1,22 +1,20 @@
 FROM maven:3.9-eclipse-temurin-21-alpine AS build
 
-WORKDIR /app
+WORKDIR /build
 
-
-COPY pom.xml .
+COPY caronas/pom.xml .
 
 RUN mvn dependency:go-offline
 
-COPY src ./src
+COPY caronas/src ./src
 
 RUN mvn package -DskipTests
 
-FROM eclipse-temurin:21-jre-alpine
 
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-COPY --from=build /app/target/caronas-0.0.1-SNAPSHOT.jar .
+COPY --from=build /build/target/caronas-0.0.1-SNAPSHOT.jar .
 
 EXPOSE 8080
-
 ENTRYPOINT ["java", "-jar", "caronas-0.0.1-SNAPSHOT.jar"]
